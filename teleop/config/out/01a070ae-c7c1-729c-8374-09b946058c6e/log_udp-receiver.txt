@@ -1,2 +1,0 @@
-[receiver] Listening on UDP 0.0.0.0:5006
-{"timestamp":"2026-09-05T08:28:19.054760Z","level":"WARN","fields":{"message":"Ignoring output `vr_receive_times` not in node's output list."},"target":"dora_node_api::node"}

@@ -5,3 +5,5 @@ output/
 .staging_backup/
 *.hdf5
 logs/
+out/
+*.bak

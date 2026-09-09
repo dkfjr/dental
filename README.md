@@ -26,6 +26,70 @@ teleop/
 bin/                                단축 명령어
 ```
 
+## 준비물
+
+이 저장소에는 씬·브리지·설정만 들어 있습니다. 아래 세 가지는 각자 설치해야 합니다.
+
+| | 설명 |
+|---|---|
+| **MuJoCo** | `pip install mujoco` — 씬만 볼 거면 이것만 있으면 됩니다 |
+| **dora + enactic 노드** | 아래 명령으로 설치. 로봇을 실제로 구동하는 파이프라인 |
+| **NVIDIA CloudXR + IsaacTeleop** | VR 입력용. NVIDIA에서 별도로 받아야 하며 저장소에 포함할 수 없습니다 |
+
+### dora 노드 설치
+
+```bash
+cd teleop
+python -m venv .venv && source .venv/bin/activate
+pip install dora-rs-cli
+pip install git+https://github.com/enactic/dora-openarm-quitter.git
+pip install git+https://github.com/enactic/dora-openarm-vr.git
+pip install git+https://github.com/enactic/dora-openarm-kinematics
+pip install git+https://github.com/enactic/dora-openarm-mujoco
+```
+
+### VR 입력 (둘 중 하나)
+
+**A. IsaacTeleop + CloudXR** — 이 저장소가 쓰는 방식
+
+NVIDIA CloudXR SDK 를 설치하고 `isaacteleop` 이 들어 있는 venv 를 만듭니다.
+`bin/dental-vr` 안의 `CXR_PY` 경로를 그 venv 의 python 으로 바꾸세요.
+Quest 브라우저로 `https://<PC-IP>:48322/client/#/sim` 에 접속해 연결합니다.
+
+APK 빌드 없이 브라우저만으로 무선 연결됩니다.
+
+**B. Unity APK** — enactic 원래 방식
+
+Quest 용 Unity 앱을 직접 만들어 아래 JSON 을 UDP :5006 으로 보내면 됩니다.
+그 경우 `isaacteleop_bridge.py` 는 필요 없습니다.
+
+```json
+{"lc": {"x":.., "y":.., "z":.., "qx":.., "qy":.., "qz":.., "qw":..},
+ "rc": {...}, "rf": {...},
+ "lt": 0.0, "rt": 0.0, "lg": 0.0, "rg": 0.0,
+ "vl": true, "vr": true}
+```
+좌표는 Unity 왼손 좌표계(미터)입니다.
+
+## 구조
+
+```
+Quest 3
+  │  무선
+  ▼
+IsaacTeleop (또는 Unity APK)     컨트롤러·헤드셋 포즈 읽기
+  │  UDP :5006  (JSON)
+  ▼
+dora 파이프라인
+  ├── udp-receiver     포즈·트리거·그립·조이스틱 수신
+  ├── ik               mink 역기구학 (bimanual)
+  └── mujoco-viewer    MuJoCo 렌더 + 제어
+```
+
+`isaacteleop_bridge.py` 는 **입력 어댑터**입니다. dora 를 대체하는 게 아니라
+dora 의 `udp-receiver` 에 데이터를 넣어 줍니다. UDP JSON 만 맞으면
+다른 입력원으로 갈아끼울 수 있습니다.
+
 ## 실행
 
 `bin/` 을 PATH 에 넣거나 `~/.local/bin/` 에 복사한 뒤:
