@@ -1,0 +1,842 @@
+[
+ {
+  "name": "Chair_Base",
+  "file": "Chair_Base.obj",
+  "material": {
+   "name": "Chrome",
+   "color": [
+    0.75,
+    0.76,
+    0.78,
+    1.0
+   ],
+   "metallic": 1.0,
+   "roughness": 0.15
+  }
+ },
+ {
+  "name": "Chair_Column",
+  "file": "Chair_Column.obj",
+  "material": {
+   "name": "Chrome",
+   "color": [
+    0.75,
+    0.76,
+    0.78,
+    1.0
+   ],
+   "metallic": 1.0,
+   "roughness": 0.15
+  }
+ },
+ {
+  "name": "Chair_Column_Upper",
+  "file": "Chair_Column_Upper.obj",
+  "material": {
+   "name": "Chrome",
+   "color": [
+    0.75,
+    0.76,
+    0.78,
+    1.0
+   ],
+   "metallic": 1.0,
+   "roughness": 0.15
+  }
+ },
+ {
+  "name": "Seat_Pan",
+  "file": "Seat_Pan.obj",
+  "material": {
+   "name": "CushionBlue",
+   "color": [
+    0.18,
+    0.42,
+    0.62,
+    1.0
+   ],
+   "metallic": 0.0,
+   "roughness": 0.55
+  }
+ },
+ {
+  "name": "Leg_Rest",
+  "file": "Leg_Rest.obj",
+  "material": {
+   "name": "CushionBlue",
+   "color": [
+    0.18,
+    0.42,
+    0.62,
+    1.0
+   ],
+   "metallic": 0.0,
+   "roughness": 0.55
+  }
+ },
+ {
+  "name": "Backrest",
+  "file": "Backrest.obj",
+  "material": {
+   "name": "CushionBlue",
+   "color": [
+    0.18,
+    0.42,
+    0.62,
+    1.0
+   ],
+   "metallic": 0.0,
+   "roughness": 0.55
+  }
+ },
+ {
+  "name": "Headrest",
+  "file": "Headrest.obj",
+  "material": {
+   "name": "CushionBlue",
+   "color": [
+    0.18,
+    0.42,
+    0.62,
+    1.0
+   ],
+   "metallic": 0.0,
+   "roughness": 0.55
+  }
+ },
+ {
+  "name": "Armrest_L",
+  "file": "Armrest_L.obj",
+  "material": {
+   "name": "WhitePlastic",
+   "color": [
+    0.92,
+    0.93,
+    0.94,
+    1.0
+   ],
+   "metallic": 0.0,
+   "roughness": 0.3
+  }
+ },
+ {
+  "name": "Armrest_R",
+  "file": "Armrest_R.obj",
+  "material": {
+   "name": "WhitePlastic",
+   "color": [
+    0.92,
+    0.93,
+    0.94,
+    1.0
+   ],
+   "metallic": 0.0,
+   "roughness": 0.3
+  }
+ },
+ {
+  "name": "Cart_Caster_-1_-1",
+  "file": "Cart_Caster_-1_-1.obj",
+  "material": {
+   "name": "DarkPlastic",
+   "color": [
+    0.06,
+    0.06,
+    0.07,
+    1.0
+   ],
+   "metallic": 0.0,
+   "roughness": 0.35
+  }
+ },
+ {
+  "name": "Cart_Caster_-1_1",
+  "file": "Cart_Caster_-1_1.obj",
+  "material": {
+   "name": "DarkPlastic",
+   "color": [
+    0.06,
+    0.06,
+    0.07,
+    1.0
+   ],
+   "metallic": 0.0,
+   "roughness": 0.35
+  }
+ },
+ {
+  "name": "Cart_Caster_1_-1",
+  "file": "Cart_Caster_1_-1.obj",
+  "material": {
+   "name": "DarkPlastic",
+   "color": [
+    0.06,
+    0.06,
+    0.07,
+    1.0
+   ],
+   "metallic": 0.0,
+   "roughness": 0.35
+  }
+ },
+ {
+  "name": "Cart_Caster_1_1",
+  "file": "Cart_Caster_1_1.obj",
+  "material": {
+   "name": "DarkPlastic",
+   "color": [
+    0.06,
+    0.06,
+    0.07,
+    1.0
+   ],
+   "metallic": 0.0,
+   "roughness": 0.35
+  }
+ },
+ {
+  "name": "Cart_Post_-1_-1",
+  "file": "Cart_Post_-1_-1.obj",
+  "material": {
+   "name": "CartFrame",
+   "color": [
+    0.72,
+    0.73,
+    0.75,
+    1.0
+   ],
+   "metallic": 0.9,
+   "roughness": 0.35
+  }
+ },
+ {
+  "name": "Cart_Post_-1_1",
+  "file": "Cart_Post_-1_1.obj",
+  "material": {
+   "name": "CartFrame",
+   "color": [
+    0.72,
+    0.73,
+    0.75,
+    1.0
+   ],
+   "metallic": 0.9,
+   "roughness": 0.35
+  }
+ },
+ {
+  "name": "Cart_Post_1_-1",
+  "file": "Cart_Post_1_-1.obj",
+  "material": {
+   "name": "CartFrame",
+   "color": [
+    0.72,
+    0.73,
+    0.75,
+    1.0
+   ],
+   "metallic": 0.9,
+   "roughness": 0.35
+  }
+ },
+ {
+  "name": "Cart_Post_1_1",
+  "file": "Cart_Post_1_1.obj",
+  "material": {
+   "name": "CartFrame",
+   "color": [
+    0.72,
+    0.73,
+    0.75,
+    1.0
+   ],
+   "metallic": 0.9,
+   "roughness": 0.35
+  }
+ },
+ {
+  "name": "Cart_Shelf_Bottom",
+  "file": "Cart_Shelf_Bottom.obj",
+  "material": {
+   "name": "CartFrame",
+   "color": [
+    0.72,
+    0.73,
+    0.75,
+    1.0
+   ],
+   "metallic": 0.9,
+   "roughness": 0.35
+  }
+ },
+ {
+  "name": "Cart_Shelf_Top",
+  "file": "Cart_Shelf_Top.obj",
+  "material": {
+   "name": "CartFrame",
+   "color": [
+    0.72,
+    0.73,
+    0.75,
+    1.0
+   ],
+   "metallic": 0.9,
+   "roughness": 0.35
+  }
+ },
+ {
+  "name": "Curette_Lucas85",
+  "file": "Curette_Lucas85.obj",
+  "material": {
+   "name": "SurgSteel",
+   "color": [
+    0.68,
+    0.7,
+    0.72,
+    1.0
+   ],
+   "metallic": 0.85,
+   "roughness": 0.32
+  }
+ },
+ {
+  "name": "Elevator_301",
+  "file": "Elevator_301.obj",
+  "material": {
+   "name": "SurgSteel",
+   "color": [
+    0.68,
+    0.7,
+    0.72,
+    1.0
+   ],
+   "metallic": 0.85,
+   "roughness": 0.32
+  }
+ },
+ {
+  "name": "Elevator_34S",
+  "file": "Elevator_34S.obj",
+  "material": {
+   "name": "SurgSteel",
+   "color": [
+    0.68,
+    0.7,
+    0.72,
+    1.0
+   ],
+   "metallic": 0.85,
+   "roughness": 0.32
+  }
+ },
+ {
+  "name": "Elevator_Buser",
+  "file": "Elevator_Buser.obj",
+  "material": {
+   "name": "SurgSteel",
+   "color": [
+    0.68,
+    0.7,
+    0.72,
+    1.0
+   ],
+   "metallic": 0.85,
+   "roughness": 0.32
+  }
+ },
+ {
+  "name": "Elevator_Cryer73",
+  "file": "Elevator_Cryer73.obj",
+  "material": {
+   "name": "SurgSteel",
+   "color": [
+    0.68,
+    0.7,
+    0.72,
+    1.0
+   ],
+   "metallic": 0.85,
+   "roughness": 0.32
+  }
+ },
+ {
+  "name": "Elevator_Cryer74",
+  "file": "Elevator_Cryer74.obj",
+  "material": {
+   "name": "SurgSteel",
+   "color": [
+    0.68,
+    0.7,
+    0.72,
+    1.0
+   ],
+   "metallic": 0.85,
+   "roughness": 0.32
+  }
+ },
+ {
+  "name": "Elevator_Molt",
+  "file": "Elevator_Molt.obj",
+  "material": {
+   "name": "SurgSteel",
+   "color": [
+    0.68,
+    0.7,
+    0.72,
+    1.0
+   ],
+   "metallic": 0.85,
+   "roughness": 0.32
+  }
+ },
+ {
+  "name": "Forceps_FX150",
+  "file": "Forceps_FX150.obj",
+  "material": {
+   "name": "SurgSteel",
+   "color": [
+    0.68,
+    0.7,
+    0.72,
+    1.0
+   ],
+   "metallic": 0.85,
+   "roughness": 0.32
+  }
+ },
+ {
+  "name": "Forceps_FX151",
+  "file": "Forceps_FX151.obj",
+  "material": {
+   "name": "SurgSteel",
+   "color": [
+    0.68,
+    0.7,
+    0.72,
+    1.0
+   ],
+   "metallic": 0.85,
+   "roughness": 0.32
+  }
+ },
+ {
+  "name": "Forceps_FX17",
+  "file": "Forceps_FX17.obj",
+  "material": {
+   "name": "SurgSteel",
+   "color": [
+    0.68,
+    0.7,
+    0.72,
+    1.0
+   ],
+   "metallic": 0.85,
+   "roughness": 0.32
+  }
+ },
+ {
+  "name": "Mirror",
+  "file": "Mirror.obj",
+  "material": {
+   "name": "SurgSteel",
+   "color": [
+    0.68,
+    0.7,
+    0.72,
+    1.0
+   ],
+   "metallic": 0.85,
+   "roughness": 0.32
+  }
+ },
+ {
+  "name": "NeedleHolder",
+  "file": "NeedleHolder.obj",
+  "material": {
+   "name": "SurgSteel",
+   "color": [
+    0.68,
+    0.7,
+    0.72,
+    1.0
+   ],
+   "metallic": 0.85,
+   "roughness": 0.32
+  }
+ },
+ {
+  "name": "Probe",
+  "file": "Probe.obj",
+  "material": {
+   "name": "SurgSteel",
+   "color": [
+    0.68,
+    0.7,
+    0.72,
+    1.0
+   ],
+   "metallic": 0.85,
+   "roughness": 0.32
+  }
+ },
+ {
+  "name": "Retractor_Minnesota",
+  "file": "Retractor_Minnesota.obj",
+  "material": {
+   "name": "SurgSteel",
+   "color": [
+    0.68,
+    0.7,
+    0.72,
+    1.0
+   ],
+   "metallic": 0.85,
+   "roughness": 0.32
+  }
+ },
+ {
+  "name": "RootPicker",
+  "file": "RootPicker.obj",
+  "material": {
+   "name": "RootPickerPlastic",
+   "color": [
+    0.1,
+    0.45,
+    0.42,
+    1.0
+   ],
+   "metallic": 0.0,
+   "roughness": 0.4
+  }
+ },
+ {
+  "name": "Scalpel_No3",
+  "file": "Scalpel_No3.obj",
+  "material": {
+   "name": "SurgSteel",
+   "color": [
+    0.68,
+    0.7,
+    0.72,
+    1.0
+   ],
+   "metallic": 0.85,
+   "roughness": 0.32
+  }
+ },
+ {
+  "name": "SuctionRack_Base",
+  "file": "SuctionRack_Base.obj",
+  "material": {
+   "name": "TraySteel",
+   "color": [
+    0.5,
+    0.51,
+    0.53,
+    1.0
+   ],
+   "metallic": 0.7,
+   "roughness": 0.4
+  }
+ },
+ {
+  "name": "SuctionTip_SUS_a",
+  "file": "SuctionTip_SUS_a.obj",
+  "material": {
+   "name": "SurgSteel",
+   "color": [
+    0.68,
+    0.7,
+    0.72,
+    1.0
+   ],
+   "metallic": 0.85,
+   "roughness": 0.32
+  }
+ },
+ {
+  "name": "SuctionTip_SUS_b",
+  "file": "SuctionTip_SUS_b.obj",
+  "material": {
+   "name": "SurgSteel",
+   "color": [
+    0.68,
+    0.7,
+    0.72,
+    1.0
+   ],
+   "metallic": 0.85,
+   "roughness": 0.32
+  }
+ },
+ {
+  "name": "SuctionTip_Ti_a",
+  "file": "SuctionTip_Ti_a.obj",
+  "material": {
+   "name": "SurgSteel",
+   "color": [
+    0.68,
+    0.7,
+    0.72,
+    1.0
+   ],
+   "metallic": 0.85,
+   "roughness": 0.32
+  }
+ },
+ {
+  "name": "SuctionTip_Ti_b",
+  "file": "SuctionTip_Ti_b.obj",
+  "material": {
+   "name": "SurgSteel",
+   "color": [
+    0.68,
+    0.7,
+    0.72,
+    1.0
+   ],
+   "metallic": 0.85,
+   "roughness": 0.32
+  }
+ },
+ {
+  "name": "Suture_Packet",
+  "file": "Suture_Packet.obj",
+  "material": {
+   "name": "PackagingWhite",
+   "color": [
+    0.95,
+    0.96,
+    0.92,
+    1.0
+   ],
+   "metallic": 0.0,
+   "roughness": 0.45
+  }
+ },
+ {
+  "name": "Suture_Packet_2",
+  "file": "Suture_Packet_2.obj",
+  "material": {
+   "name": "PackagingWhite",
+   "color": [
+    0.95,
+    0.96,
+    0.92,
+    1.0
+   ],
+   "metallic": 0.0,
+   "roughness": 0.45
+  }
+ },
+ {
+  "name": "SutureScissors_Dean",
+  "file": "SutureScissors_Dean.obj",
+  "material": {
+   "name": "SurgSteel",
+   "color": [
+    0.68,
+    0.7,
+    0.72,
+    1.0
+   ],
+   "metallic": 0.85,
+   "roughness": 0.32
+  }
+ },
+ {
+  "name": "Syringe_Aspirating",
+  "file": "Syringe_Aspirating.obj",
+  "material": {
+   "name": "SurgSteel",
+   "color": [
+    0.68,
+    0.7,
+    0.72,
+    1.0
+   ],
+   "metallic": 0.85,
+   "roughness": 0.32
+  }
+ },
+ {
+  "name": "TissueForceps_Adson",
+  "file": "TissueForceps_Adson.obj",
+  "material": {
+   "name": "SurgSteel",
+   "color": [
+    0.68,
+    0.7,
+    0.72,
+    1.0
+   ],
+   "metallic": 0.85,
+   "roughness": 0.32
+  }
+ },
+ {
+  "name": "Tray_Base",
+  "file": "Tray_Base.obj",
+  "material": {
+   "name": "TraySteel",
+   "color": [
+    0.5,
+    0.51,
+    0.53,
+    1.0
+   ],
+   "metallic": 0.7,
+   "roughness": 0.4
+  }
+ },
+ {
+  "name": "Tray_RowDivider_0",
+  "file": "Tray_RowDivider_0.obj",
+  "material": {
+   "name": "TraySteel",
+   "color": [
+    0.5,
+    0.51,
+    0.53,
+    1.0
+   ],
+   "metallic": 0.7,
+   "roughness": 0.4
+  }
+ },
+ {
+  "name": "Tray_RowDivider_1",
+  "file": "Tray_RowDivider_1.obj",
+  "material": {
+   "name": "TraySteel",
+   "color": [
+    0.5,
+    0.51,
+    0.53,
+    1.0
+   ],
+   "metallic": 0.7,
+   "roughness": 0.4
+  }
+ },
+ {
+  "name": "Tray_RowDivider_2",
+  "file": "Tray_RowDivider_2.obj",
+  "material": {
+   "name": "TraySteel",
+   "color": [
+    0.5,
+    0.51,
+    0.53,
+    1.0
+   ],
+   "metallic": 0.7,
+   "roughness": 0.4
+  }
+ },
+ {
+  "name": "Tray_RowDivider_3",
+  "file": "Tray_RowDivider_3.obj",
+  "material": {
+   "name": "TraySteel",
+   "color": [
+    0.5,
+    0.51,
+    0.53,
+    1.0
+   ],
+   "metallic": 0.7,
+   "roughness": 0.4
+  }
+ },
+ {
+  "name": "Tray_RowDivider_4",
+  "file": "Tray_RowDivider_4.obj",
+  "material": {
+   "name": "TraySteel",
+   "color": [
+    0.5,
+    0.51,
+    0.53,
+    1.0
+   ],
+   "metallic": 0.7,
+   "roughness": 0.4
+  }
+ },
+ {
+  "name": "Tray_SideWall_-0.32",
+  "file": "Tray_SideWall_-0.32.obj",
+  "material": {
+   "name": "TraySteel",
+   "color": [
+    0.5,
+    0.51,
+    0.53,
+    1.0
+   ],
+   "metallic": 0.7,
+   "roughness": 0.4
+  }
+ },
+ {
+  "name": "Tray_SideWall_0.32",
+  "file": "Tray_SideWall_0.32.obj",
+  "material": {
+   "name": "TraySteel",
+   "color": [
+    0.5,
+    0.51,
+    0.53,
+    1.0
+   ],
+   "metallic": 0.7,
+   "roughness": 0.4
+  }
+ },
+ {
+  "name": "Stool_Base",
+  "file": "Stool_Base.obj",
+  "material": {
+   "name": "DarkPlastic",
+   "color": [
+    0.06,
+    0.06,
+    0.07,
+    1.0
+   ],
+   "metallic": 0.0,
+   "roughness": 0.35
+  }
+ },
+ {
+  "name": "Stool_Pole",
+  "file": "Stool_Pole.obj",
+  "material": {
+   "name": "Chrome",
+   "color": [
+    0.75,
+    0.76,
+    0.78,
+    1.0
+   ],
+   "metallic": 1.0,
+   "roughness": 0.15
+  }
+ },
+ {
+  "name": "Stool_Seat",
+  "file": "Stool_Seat.obj",
+  "material": {
+   "name": "CushionBlue",
+   "color": [
+    0.18,
+    0.42,
+    0.62,
+    1.0
+   ],
+   "metallic": 0.0,
+   "roughness": 0.55
+  }
+ }
+]

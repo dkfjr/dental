@@ -1,0 +1,5 @@
+[receiver] Listening on UDP 0.0.0.0:5006
+{"timestamp":"2026-09-05T13:27:11.445208Z","level":"WARN","fields":{"message":"Ignoring output `vr_receive_times` not in node's output list."},"target":"dora_node_api::node"}
+[receiver] validity: OK → INVALID (L=INVALID, R=INVALID)
+[receiver] validity: INVALID → OK (L=OK, R=OK)
+[receiver] validity: OK → INVALID (L=INVALID, R=INVALID)

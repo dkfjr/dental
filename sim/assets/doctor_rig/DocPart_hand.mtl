@@ -1,0 +1,90 @@
+# Blender 4.0.2 MTL File: 'dental_chair_scene.blend'
+# www.blender.org
+
+newmtl PackedMaterial0mat
+Ka 0.040000 0.040000 0.040000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd /home/amber/projects/Dental_VLA/asset/doctor_obj/Doctor_Packed0_Diffuse.png
+map_Ks /home/amber/projects/Dental_VLA/asset/doctor_obj/Doctor_Packed0_Specular.png
+map_Ns /home/amber/projects/Dental_VLA/asset/doctor_obj/Doctor_Packed0_Gloss.png
+map_Bump /home/amber/projects/Dental_VLA/asset/doctor_obj/Doctor_Packed0_Normal.png
+
+newmtl PackedMaterial0mat.001
+Ka 0.040000 0.040000 0.040000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd /home/amber/projects/Dental_VLA/asset/doctor_obj/Doctor_Packed0_Diffuse.png
+map_Ks /home/amber/projects/Dental_VLA/asset/doctor_obj/Doctor_Packed0_Specular.png
+map_Ns /home/amber/projects/Dental_VLA/asset/doctor_obj/Doctor_Packed0_Gloss.png
+map_Bump /home/amber/projects/Dental_VLA/asset/doctor_obj/Doctor_Packed0_Normal.png
+
+newmtl PackedMaterial0mat.002
+Ka 0.040000 0.040000 0.040000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd /home/amber/projects/Dental_VLA/asset/doctor_obj/Doctor_Packed0_Diffuse.png
+map_Ks /home/amber/projects/Dental_VLA/asset/doctor_obj/Doctor_Packed0_Specular.png
+map_Ns /home/amber/projects/Dental_VLA/asset/doctor_obj/Doctor_Packed0_Gloss.png
+map_Bump /home/amber/projects/Dental_VLA/asset/doctor_obj/Doctor_Packed0_Normal.png
+
+newmtl PackedMaterial1mat
+Ka 0.040000 0.040000 0.040000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd /home/amber/projects/Dental_VLA/asset/doctor_obj/Doctor_Packed1_Diffuse.png
+map_Ks /home/amber/projects/Dental_VLA/asset/doctor_obj/Doctor_Packed1_Specular.png
+map_Ns /home/amber/projects/Dental_VLA/asset/doctor_obj/Doctor_Packed1_Gloss.png
+map_Bump /home/amber/projects/Dental_VLA/asset/doctor_obj/Doctor_Packed1_Normal.png
+
+newmtl PackedMaterial1mat.001
+Ka 0.040000 0.040000 0.040000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd /home/amber/projects/Dental_VLA/asset/doctor_obj/Doctor_Packed1_Diffuse.png
+map_Ks /home/amber/projects/Dental_VLA/asset/doctor_obj/Doctor_Packed1_Specular.png
+map_Ns /home/amber/projects/Dental_VLA/asset/doctor_obj/Doctor_Packed1_Gloss.png
+map_Bump /home/amber/projects/Dental_VLA/asset/doctor_obj/Doctor_Packed1_Normal.png
+
+newmtl PackedMaterial1mat.002
+Ka 0.040000 0.040000 0.040000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd /home/amber/projects/Dental_VLA/asset/doctor_obj/Doctor_Packed1_Diffuse.png
+map_Ks /home/amber/projects/Dental_VLA/asset/doctor_obj/Doctor_Packed1_Specular.png
+map_Ns /home/amber/projects/Dental_VLA/asset/doctor_obj/Doctor_Packed1_Gloss.png
+map_Bump /home/amber/projects/Dental_VLA/asset/doctor_obj/Doctor_Packed1_Normal.png
+
+newmtl PackedMaterial1mat.003
+Ka 0.040000 0.040000 0.040000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd /home/amber/projects/Dental_VLA/asset/doctor_obj/Doctor_Packed1_Diffuse.png
+map_Ks /home/amber/projects/Dental_VLA/asset/doctor_obj/Doctor_Packed1_Specular.png
+map_Ns /home/amber/projects/Dental_VLA/asset/doctor_obj/Doctor_Packed1_Gloss.png
+map_Bump /home/amber/projects/Dental_VLA/asset/doctor_obj/Doctor_Packed1_Normal.png
+
+newmtl PackedMaterial2mat
+Ka 0.040000 0.040000 0.040000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd /home/amber/projects/Dental_VLA/asset/doctor_obj/Doctor_Packed2_Diffuse.png
+map_Ks /home/amber/projects/Dental_VLA/asset/doctor_obj/Doctor_Packed2_Specular.png
+map_Ns /home/amber/projects/Dental_VLA/asset/doctor_obj/Doctor_Packed2_Gloss.png
+map_Bump /home/amber/projects/Dental_VLA/asset/doctor_obj/Doctor_Packed2_Normal.png

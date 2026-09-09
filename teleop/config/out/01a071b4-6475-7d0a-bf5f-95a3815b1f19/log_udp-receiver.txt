@@ -1,0 +1,6 @@
+{"timestamp":"2026-09-05T13:14:03.902257Z","level":"INFO","fields":{"message":"","name":"MeterProvider.GlobalSet","message":"Global meter provider is set. Meters can now be created using global::meter() or global::meter_with_scope()."},"target":"opentelemetry"}
+[receiver] Listening on UDP 0.0.0.0:5006
+{"timestamp":"2026-09-05T13:14:04.968910Z","level":"WARN","fields":{"message":"Ignoring output `vr_receive_times` not in node's output list."},"target":"dora_node_api::node"}
+[receiver] validity: OK → INVALID (L=INVALID, R=INVALID)
+[receiver] validity: INVALID → OK (L=OK, R=OK)
+[receiver] validity: OK → INVALID (L=INVALID, R=INVALID)

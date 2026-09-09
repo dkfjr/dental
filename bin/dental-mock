@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# Quest 없이 가짜 컨트롤러 UDP 송신 (dental-teleop 켠 상태에서 새 터미널)
+export DENTAL_VLA="${DENTAL_VLA:-$HOME/projects/Dental_VLA}"
+if [ ! -d "$DENTAL_VLA" ]; then
+  echo "오류: DENTAL_VLA 경로가 없습니다 -> $DENTAL_VLA" >&2
+  echo "      다른 위치에 있으면:  export DENTAL_VLA=/실제/경로" >&2
+  exit 1
+fi
+cd "$DENTAL_VLA/teleop" || exit 1
+exec env PYTHONPATH=. python3 -m dental_vla_teleop.mock_quest_sender "$@"

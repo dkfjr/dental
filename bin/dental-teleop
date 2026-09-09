@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# VR 텔레옵. dora 가 없으면 최초 1회 설치 후 이어서 실행 (실행되면 MuJoCo 씬도 같이 뜬다)
+export DENTAL_VLA="${DENTAL_VLA:-$HOME/projects/Dental_VLA}"
+if [ ! -d "$DENTAL_VLA" ]; then
+  echo "오류: DENTAL_VLA 경로가 없습니다 -> $DENTAL_VLA" >&2
+  echo "      다른 위치에 있으면:  export DENTAL_VLA=/실제/경로" >&2
+  exit 1
+fi
+cd "$DENTAL_VLA/teleop" || exit 1
+if [ ! -x .venv/bin/dora ]; then
+  echo "[dental-teleop] dora 없음 -> 최초 설치 (한 번만, 수 분 소요)"
+  uv venv --python 3.12                               || exit 1
+  uv pip install "dora-rs-cli==0.5.0" "dora-rs==0.5.0" || exit 1
+  uv run dora build config/dataflow-mujoco.yaml --uv   || exit 1
+fi
+export DISPLAY="${DISPLAY:-:1}" MUJOCO_GL=glfw
+exec uv run dora run config/dataflow-mujoco.yaml --uv

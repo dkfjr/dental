@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# 창 없이 구도 PNG 저장 후 열기
+export DENTAL_VLA="${DENTAL_VLA:-$HOME/projects/Dental_VLA}"
+if [ ! -d "$DENTAL_VLA" ]; then
+  echo "오류: DENTAL_VLA 경로가 없습니다 -> $DENTAL_VLA" >&2
+  echo "      다른 위치에 있으면:  export DENTAL_VLA=/실제/경로" >&2
+  exit 1
+fi
+export MUJOCO_GL=egl
+python3 "$DENTAL_VLA/sim/scripts/render_staging.py" "$@" || exit 1
+xdg-open "$DENTAL_VLA/sim/output/staging.png" >/dev/null 2>&1 &

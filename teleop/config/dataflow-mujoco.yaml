@@ -1,0 +1,52 @@
+# Copyright 2026 Dental-VLA. Apache-2.0.
+# VR teleop of the OpenArm in the Dental_VLA v3 scene (with official torso + home keyframe).
+# Reuses enactic/dora-openarm-vr nodes; only the mujoco node's --xml points at our scene.
+#   uv pip install "dora-rs-cli==0.5.0" "dora-rs==0.5.0"
+#   uv run dora build config/dataflow-mujoco.yaml --uv
+#   uv run dora run   config/dataflow-mujoco.yaml --uv
+nodes:
+  - id: quittable-tick-leader
+    build: pip install git+https://github.com/enactic/dora-openarm-quitter.git
+    path: dora-openarm-quitter
+    inputs: { tick: dora/timer/millis/2 }
+    outputs: [tick]
+  - id: udp-receiver
+    build: pip install git+https://github.com/enactic/dora-openarm-vr.git
+    path: dora-openarm-quest-receiver
+    args: "--host 0.0.0.0 --port 5006"
+    inputs: { tick: quittable-tick-leader/tick }
+    outputs: [pose_right, trigger_right, grip_right, pose_left, pose_reference, trigger_left, grip_left, joystick_x_left, joystick_y_left, joystick_x_right, joystick_y_right, button_a, button_b, button_x, button_y, status]
+  - id: ik
+    build: pip install git+https://github.com/enactic/dora-openarm-kinematics
+    path: dora-openarm-ik
+    # --xml : **중요** — 안 넘기면 IK 가 OpenArm 기본 예제 씬(cell.xml)을 기준으로 푼다.
+    #         우리 씬의 팔 베이스 위치가 다르므로 반드시 우리 씬을 넘겨야 한다.
+    # --posture-cost 0 : 기본 자세로 되당기는 항. 0.01 이면 팔을 뻗을 때 계속 접히려 한다.
+    # --max-iters 30   : 5~10 회로는 먼 목표에서 수렴이 덜 된다(= 팔이 덜 펴짐).
+    # --no-joint-braking : 관절 한계 부근에서 감속시키는 기능. 완전 신전은 한계 근처라 이게 걸린다.
+    # --damping 0.05     : 특이점(=완전히 편 상태) 부근 보수성을 낮춰 신전을 허용.
+    args: "--xml ../../sim/main_v3_teleop.xml --keyframe home --mode bimanual
+           --max-iters 30 --dt 0.1 --damping 0.05 --posture-cost 0.0 --lm-damping 0.005
+           --no-joint-braking"
+    inputs:
+      tick: quittable-tick-leader/tick
+      target_right: udp-receiver/pose_right
+      target_left:  udp-receiver/pose_left
+      trigger_right: udp-receiver/trigger_right
+      trigger_left:  udp-receiver/trigger_left
+    outputs: [position_left, position_right, status]
+  - id: mujoco-viewer
+    build: pip install git+https://github.com/enactic/dora-openarm-mujoco
+    path: dora-openarm-mujoco
+    # --ctrl          : 관절값을 data.ctrl 에 쓰고 mj_step 으로 물리를 돌린다.
+    #                   (기본값은 data.qpos 직접 쓰기 + mj_forward 라서 충돌이 무시되어
+    #                    팔이 기둥·사람을 그대로 통과했다)
+    # --enable-collision : 씬의 충돌을 켠다
+    args: "--xml ../../sim/main_v3_teleop.xml --keyframe home --viewer --debug-frames --ctrl --enable-collision"
+    inputs:
+      position_left:  ik/position_left
+      position_right: ik/position_right
+      pose_right:     udp-receiver/pose_right
+      pose_left:      udp-receiver/pose_left
+      joystick_y:     udp-receiver/joystick_y_left
+    outputs: [status]

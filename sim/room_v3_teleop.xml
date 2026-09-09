@@ -1,0 +1,495 @@
+<mujoco model="dental_room">
+
+  <!-- ============================================================
+       이 파일 읽는 법 (숫자 3종류만 알면 됩니다)
+
+       pos="x y z"     위치. 순서대로 좌우 / 앞뒤 / 높이 (단위: 미터, 1=1m)
+                        - x가 커지면 오른쪽, y가 커지면 안쪽(뒤), z가 커지면 위
+       size="..."      크기. 도형 종류마다 숫자 개수가 다름 (박스는 3개=가로/세로/높이의
+                        "절반" 길이, 캡슐/원기둥은 2개=반지름과 길이의 절반 등)
+       rgba="R G B A"  색깔. 빨강/초록/파랑 세 개 + 투명도, 전부 0~1 사이 숫자
+                        (1 0 0 1 = 완전 빨강, 0 0 0 0.3 = 흐릿한 검정)
+
+       바꾸고 나서 확인하려면 터미널에서:
+         cd sim && source ../.venv/bin/activate && python scripts/episode.py
+       ============================================================ -->
+
+    <asset>
+    <!-- DocCap_* = 원본 리그의 열린 절단면(팔꿈치·손목·어깨)을 막은 사본.
+         teleop/tools/cap_doctor_holes.py 로 생성. 원본 DocPart_* 는 그대로 둔다. -->
+    <mesh name="doc_torso" file="doctor_rig/DocPart_torso.obj"/>
+    <mesh name="doc_upper_arm" file="doctor_rig/DocPart_upper_arm.obj"/>
+    <mesh name="doc_forearm" file="doctor_rig/DocCap_forearm.obj"/>
+    <mesh name="doc_hand" file="doctor_rig/DocCap_hand.obj"/>
+    <mesh name="doc_head" file="doctor_rig/DocPart2_head.obj"/>
+    <mesh name="doc_cap_mask" file="doctor_rig/DocPart3_cap_mask.obj"/>
+    <mesh name="doc_face_skin" file="doctor_rig/DocCap_faceskin.obj"/>
+    <mesh name="doc_left_hand" file="doctor_rig/DocCap_left_hand.obj"/>
+    <mesh name="doc_torso_only" file="doctor_rig/DocPart2_torso_only.obj"/>
+    <!-- 스테이징: 서 있는 몸통 메시를 골반(z=0.90)/무릎(z=0.52)에서 절단한 앉은자세용 3분할 -->
+    <mesh name="doc_seat_torso" file="doctor_rig/DocSeat_torso.obj"/>
+    <mesh name="doc_seat_thigh" file="doctor_rig/DocSeat_thigh.obj"/>
+    <mesh name="doc_seat_shin"  file="doctor_rig/DocSeat_shin.obj"/>
+    <mesh name="doc_seat_lhand" file="doctor_rig/DocSeat_lhand.obj"/>
+    <!-- 환자: 의사와 같은 인체 메시(DocPart_torso = 머리·양팔 포함 전신)를 0.96배(신장 1.746 m)로
+         줄여 가랑이 z=0.768 / 목 z=1.440 에서 3분할. 앙와위 강체변환은 아래 patient body 참조. -->
+    <mesh name="pat_head"  file="doctor_rig/PatSupine_head.obj"/>
+    <mesh name="pat_torso" file="doctor_rig/PatSupine_torso.obj"/>
+    <mesh name="pat_legs"  file="doctor_rig/PatSupine_legs.obj"/>
+    <material name="doc_scrub" rgba="0.30 0.40 0.56 1"/>
+    <material name="doc_skin" rgba="0.85 0.68 0.58 1"/>
+    <material name="patient_gown" rgba="0.62 0.78 0.80 1" shininess="0.25" specular="0.15"/>
+    <material name="patient_skin" rgba="0.87 0.72 0.63 1" shininess="0.3" specular="0.2"/>
+      <material name="bl_Chrome" rgba="0.75 0.76 0.78 1.0" shininess="0.85" specular="0.8" reflectance="0.65"/>
+    <material name="bl_CushionBlue" rgba="0.18 0.42 0.62 1.0" shininess="0.45" specular="0.2" reflectance="0.15"/>
+    <material name="bl_WhitePlastic" rgba="0.92 0.93 0.94 1.0" shininess="0.7" specular="0.2" reflectance="0.15"/>
+    <material name="bl_DarkPlastic" rgba="0.06 0.06 0.07 1.0" shininess="0.65" specular="0.2" reflectance="0.15"/>
+    <material name="bl_CartFrame" rgba="0.72 0.73 0.75 1.0" shininess="0.65" specular="0.74" reflectance="0.6"/>
+    <material name="bl_SurgSteel" rgba="0.68 0.7 0.72 1.0" shininess="0.68" specular="0.71" reflectance="0.57"/>
+    <material name="bl_RootPickerPlastic" rgba="0.1 0.45 0.42 1.0" shininess="0.6" specular="0.2" reflectance="0.15"/>
+    <material name="bl_TraySteel" rgba="0.5 0.51 0.53 1.0" shininess="0.6" specular="0.62" reflectance="0.5"/>
+    <material name="bl_PackagingWhite" rgba="0.95 0.96 0.92 1.0" shininess="0.55" specular="0.2" reflectance="0.15"/>
+    <!-- 실물 규격 보정: 베이스 지름 0.90 -> 0.65 m (실물 0.55~0.70), 기둥 0.12 m 단축 -->
+    <mesh name="bl_Chair_Base" file="blender_scene/Chair_Base.obj" scale="0.722 0.722 1"/>
+    <mesh name="bl_Chair_Column" file="blender_scene/Chair_Column.obj" scale="1 1 0.782"/>
+    <mesh name="bl_Chair_Column_Upper" file="blender_scene/Chair_Column_Upper.obj"/>
+    <mesh name="bl_Seat_Pan" file="blender_scene/Seat_Pan.obj"/>
+    <mesh name="bl_Leg_Rest" file="blender_scene/Leg_Rest.obj"/>
+    <mesh name="bl_Backrest" file="blender_scene/Backrest.obj"/>
+    <mesh name="bl_Headrest" file="blender_scene/Headrest.obj"/>
+    <mesh name="bl_Armrest_L" file="blender_scene/Armrest_L.obj"/>
+    <mesh name="bl_Armrest_R" file="blender_scene/Armrest_R.obj"/>
+    <mesh name="bl_Cart_Caster_-1_-1" file="blender_scene/Cart_Caster_-1_-1.obj"/>
+    <mesh name="bl_Cart_Caster_-1_1" file="blender_scene/Cart_Caster_-1_1.obj"/>
+    <mesh name="bl_Cart_Caster_1_-1" file="blender_scene/Cart_Caster_1_-1.obj"/>
+    <mesh name="bl_Cart_Caster_1_1" file="blender_scene/Cart_Caster_1_1.obj"/>
+    <mesh name="bl_Cart_Post_-1_-1" file="blender_scene/Cart_Post_-1_-1.obj"/>
+    <mesh name="bl_Cart_Post_-1_1" file="blender_scene/Cart_Post_-1_1.obj"/>
+    <mesh name="bl_Cart_Post_1_-1" file="blender_scene/Cart_Post_1_-1.obj"/>
+    <mesh name="bl_Cart_Post_1_1" file="blender_scene/Cart_Post_1_1.obj"/>
+    <mesh name="bl_Cart_Shelf_Bottom" file="blender_scene/Cart_Shelf_Bottom.obj"/>
+    <mesh name="bl_Cart_Shelf_Top" file="blender_scene/Cart_Shelf_Top.obj"/>
+    <mesh name="bl_Curette_Lucas85" file="blender_scene/Curette_Lucas85.obj"/>
+    <mesh name="bl_Elevator_301" file="blender_scene/Elevator_301.obj"/>
+    <mesh name="bl_Elevator_34S" file="blender_scene/Elevator_34S.obj"/>
+    <mesh name="bl_Elevator_Buser" file="blender_scene/Elevator_Buser.obj"/>
+    <mesh name="bl_Elevator_Cryer73" file="blender_scene/Elevator_Cryer73.obj"/>
+    <mesh name="bl_Elevator_Cryer74" file="blender_scene/Elevator_Cryer74.obj"/>
+    <mesh name="bl_Elevator_Molt" file="blender_scene/Elevator_Molt.obj"/>
+    <mesh name="bl_Forceps_FX150" file="blender_scene/Forceps_FX150.obj"/>
+    <mesh name="bl_Forceps_FX151" file="blender_scene/Forceps_FX151.obj"/>
+    <mesh name="bl_Forceps_FX17" file="blender_scene/Forceps_FX17.obj"/>
+    <mesh name="bl_Mirror" file="blender_scene/Mirror.obj"/>
+    <mesh name="bl_NeedleHolder" file="blender_scene/NeedleHolder.obj"/>
+    <mesh name="bl_Probe" file="blender_scene/Probe.obj"/>
+    <mesh name="bl_Retractor_Minnesota" file="blender_scene/Retractor_Minnesota.obj"/>
+    <mesh name="bl_RootPicker" file="blender_scene/RootPicker.obj"/>
+    <mesh name="bl_Scalpel_No3" file="blender_scene/Scalpel_No3.obj"/>
+    <mesh name="bl_SuctionRack_Base" file="blender_scene/SuctionRack_Base.obj"/>
+    <mesh name="bl_SuctionTip_SUS_a" file="blender_scene/SuctionTip_SUS_a.obj"/>
+    <mesh name="bl_SuctionTip_SUS_b" file="blender_scene/SuctionTip_SUS_b.obj"/>
+    <mesh name="bl_SuctionTip_Ti_a" file="blender_scene/SuctionTip_Ti_a.obj"/>
+    <mesh name="bl_SuctionTip_Ti_b" file="blender_scene/SuctionTip_Ti_b.obj"/>
+    <mesh name="bl_Suture_Packet" file="blender_scene/Suture_Packet.obj"/>
+    <mesh name="bl_Suture_Packet_2" file="blender_scene/Suture_Packet_2.obj"/>
+    <mesh name="bl_SutureScissors_Dean" file="blender_scene/SutureScissors_Dean.obj"/>
+    <mesh name="bl_Syringe_Aspirating" file="blender_scene/Syringe_Aspirating.obj"/>
+    <mesh name="bl_TissueForceps_Adson" file="blender_scene/TissueForceps_Adson.obj"/>
+    <mesh name="bl_Tray_Base" file="blender_scene/Tray_Base.obj"/>
+    <mesh name="bl_Tray_RowDivider_0" file="blender_scene/Tray_RowDivider_0.obj"/>
+    <mesh name="bl_Tray_RowDivider_1" file="blender_scene/Tray_RowDivider_1.obj"/>
+    <mesh name="bl_Tray_RowDivider_2" file="blender_scene/Tray_RowDivider_2.obj"/>
+    <mesh name="bl_Tray_RowDivider_3" file="blender_scene/Tray_RowDivider_3.obj"/>
+    <mesh name="bl_Tray_RowDivider_4" file="blender_scene/Tray_RowDivider_4.obj"/>
+    <mesh name="bl_Tray_SideWall_-0.32" file="blender_scene/Tray_SideWall_-0.32.obj"/>
+    <mesh name="bl_Tray_SideWall_0.32" file="blender_scene/Tray_SideWall_0.32.obj"/>
+    <mesh name="bl_Stool_Base" file="blender_scene/Stool_Base.obj"/>
+    <mesh name="bl_Stool_Pole" file="blender_scene/Stool_Pole.obj"/>
+    <mesh name="bl_Stool_Seat" file="blender_scene/Stool_Seat.obj"/>
+</asset>
+
+  <worldbody>
+    <!-- ============ 치과의자 세트 (Blender 원본 그대로: 형태·색·재질) ============ -->
+    <body name="bl_chair" pos="0 0 0">
+      <geom name="bl_Chair_Base_g" type="mesh" mesh="bl_Chair_Base" material="bl_Chrome"/>
+      <geom name="bl_Chair_Column_g" type="mesh" mesh="bl_Chair_Column" material="bl_Chrome" pos="0 0 0.0174"/>
+      <!-- 기둥 위 전체를 0.12 m 내려 시트 상단 0.90 -> 0.78 (승강식 실물 범위 0.35~0.80) -->
+      <body name="bl_chair_upper" pos="0 0 -0.12">
+      <geom name="bl_Chair_Column_Upper_g" type="mesh" mesh="bl_Chair_Column_Upper" material="bl_Chrome"/>
+      <geom name="bl_Seat_Pan_g" type="mesh" mesh="bl_Seat_Pan" material="bl_CushionBlue"/>
+      <!-- 리클라인: 등받이+헤드레스트를 등받이 하단 힌지 (0, 0.230, 0.878) 둘레로 -44° 회전.
+           수직대비 28°(업라이트) -> 72°(앙와위). 메시는 월드좌표로 baked 되어 있으므로
+           자식 body를 힌지 위치에 두고 geom을 -힌지만큼 되밀어 "힌지 둘레 회전"을 만든다. -->
+      <body name="bl_chair_backrest" pos="0 0.230 0.8778" euler="-0.76794 0 0">
+        <geom name="bl_Backrest_g" type="mesh" mesh="bl_Backrest" material="bl_CushionBlue" pos="0 -0.230 -0.8778"/>
+        <!-- 헤드레스트는 등받이 레일을 따라 슬라이드하는 부품. 의자 전장(2.11 m)이 환자(1.75 m)보다
+             길어 기본 위치에서는 머리가 안 닿으므로, 등받이 면을 따라 -0.367 m 내려 뒤통수를 받친다. -->
+        <geom name="bl_Headrest_g" type="mesh" mesh="bl_Headrest" material="bl_CushionBlue" pos="0 -0.4024 -1.2021"/>
+      </body>
+      <!-- 레그레스트: 발쪽으로 7.9° 들려 있고 시트면보다 78mm 낮던 것을 수평 + 시트면(z=0.90) 정렬 -->
+      <body name="bl_chair_legrest" pos="0 -0.454 0.900" euler="0.13746 0 0">
+        <geom name="bl_Leg_Rest_g" type="mesh" mesh="bl_Leg_Rest" material="bl_CushionBlue" pos="0 0.454 -0.822"/>
+      </body>
+      <geom name="bl_Armrest_L_g" type="mesh" mesh="bl_Armrest_L" material="bl_WhitePlastic"/>
+      <geom name="bl_Armrest_R_g" type="mesh" mesh="bl_Armrest_R" material="bl_WhitePlastic"/>
+      </body>
+      <!-- 전달지점. 회의록 §6.2 두 가지 안전원칙을 모두 만족하도록 잡았다:
+             · "환자 얼굴 위로 기구 이동 금지"  -> 환자 머리(y>=0.498)보다 50 mm 발쪽
+             · "가슴 위 거치는 지양"            -> 가슴 중앙이 아니라 **턱 아래 30~100 mm(쇄골 상방)**
+           사양서 §9-2 V 의 두부측 끝단에 해당. 체표면에서 50 mm 이상 떠 있고,
+           의사·로봇 모두 신전율 0.73 으로 여유 있게 도달한다. -->
+      <site name="handoff" pos="0.050 0.470 1.200" size="0.018" rgba="0.2 0.9 0.4 0.55" group="3"/>
+    </body>
+    <body name="bl_cart" pos="0.0000 -0.2000 0.0000">
+      <geom name="bl_Cart_Caster_-1_-1_g" type="mesh" mesh="bl_Cart_Caster_-1_-1" material="bl_DarkPlastic"/>
+      <geom name="bl_Cart_Caster_-1_1_g" type="mesh" mesh="bl_Cart_Caster_-1_1" material="bl_DarkPlastic"/>
+      <geom name="bl_Cart_Caster_1_-1_g" type="mesh" mesh="bl_Cart_Caster_1_-1" material="bl_DarkPlastic"/>
+      <geom name="bl_Cart_Caster_1_1_g" type="mesh" mesh="bl_Cart_Caster_1_1" material="bl_DarkPlastic"/>
+      <geom name="bl_Cart_Post_-1_-1_g" type="mesh" mesh="bl_Cart_Post_-1_-1" material="bl_CartFrame"/>
+      <geom name="bl_Cart_Post_-1_1_g" type="mesh" mesh="bl_Cart_Post_-1_1" material="bl_CartFrame"/>
+      <geom name="bl_Cart_Post_1_-1_g" type="mesh" mesh="bl_Cart_Post_1_-1" material="bl_CartFrame"/>
+      <geom name="bl_Cart_Post_1_1_g" type="mesh" mesh="bl_Cart_Post_1_1" material="bl_CartFrame"/>
+      <geom name="bl_Cart_Shelf_Bottom_g" type="mesh" mesh="bl_Cart_Shelf_Bottom" material="bl_CartFrame"/>
+      <geom name="bl_Cart_Shelf_Top_g" type="mesh" mesh="bl_Cart_Shelf_Top" material="bl_CartFrame"/>
+    </body>
+    <body name="bl_tray" pos="0.0000 -0.2000 0.0000">
+      <geom name="bl_Tray_Base_g" type="mesh" mesh="bl_Tray_Base" material="bl_TraySteel"/>
+      <geom name="bl_Tray_SideWall_-0.32_g" type="mesh" mesh="bl_Tray_SideWall_-0.32" material="bl_TraySteel"/>
+      <geom name="bl_Tray_SideWall_0.32_g" type="mesh" mesh="bl_Tray_SideWall_0.32" material="bl_TraySteel"/>
+    </body>
+    <body name="bl_rack" pos="0.0000 -0.2000 0.0000">
+      <geom name="bl_SuctionRack_Base_g" type="mesh" mesh="bl_SuctionRack_Base" material="bl_TraySteel"/>
+      <geom name="bl_SuctionTip_SUS_a_g" type="mesh" mesh="bl_SuctionTip_SUS_a" material="bl_SurgSteel" density="7800" condim="4" priority="2" friction="1.2 0.05 0.01" solref="0.005 1" solimp="0.98 0.999 0.001"/>
+      <geom name="bl_SuctionTip_SUS_b_g" type="mesh" mesh="bl_SuctionTip_SUS_b" material="bl_SurgSteel" density="7800" condim="4" priority="2" friction="1.2 0.05 0.01" solref="0.005 1" solimp="0.98 0.999 0.001"/>
+      <geom name="bl_SuctionTip_Ti_a_g" type="mesh" mesh="bl_SuctionTip_Ti_a" material="bl_SurgSteel" density="7800" condim="4" priority="2" friction="1.2 0.05 0.01" solref="0.005 1" solimp="0.98 0.999 0.001"/>
+      <geom name="bl_SuctionTip_Ti_b_g" type="mesh" mesh="bl_SuctionTip_Ti_b" material="bl_SurgSteel" density="7800" condim="4" priority="2" friction="1.2 0.05 0.01" solref="0.005 1" solimp="0.98 0.999 0.001"/>
+      <geom name="bl_Suture_Packet_g" type="mesh" mesh="bl_Suture_Packet" material="bl_PackagingWhite" density="7800" condim="4" priority="2" friction="1.2 0.05 0.01" solref="0.005 1" solimp="0.98 0.999 0.001"/>
+      <geom name="bl_Suture_Packet_2_g" type="mesh" mesh="bl_Suture_Packet_2" material="bl_PackagingWhite" density="7800" condim="4" priority="2" friction="1.2 0.05 0.01" solref="0.005 1" solimp="0.98 0.999 0.001"/>
+    </body>
+    <!-- 스테이징: 스툴을 환자 반대편(로봇 마주보는 자리)로 이동. 좌면중심 (-0.56, 0.48),
+         좌면상단 z=0.588 -> 0.530 = 앉은 의사의 엉덩이 절단면(z=0.516)이 좌면에 묻히는 높이 -->
+    <body name="bl_stool" pos="0.29 0.13 -0.058">
+      <geom name="bl_Stool_Base_g" type="mesh" mesh="bl_Stool_Base" material="bl_DarkPlastic"/>
+      <geom name="bl_Stool_Pole_g" type="mesh" mesh="bl_Stool_Pole" material="bl_Chrome"/>
+      <geom name="bl_Stool_Seat_g" type="mesh" mesh="bl_Stool_Seat" material="bl_CushionBlue"/>
+    </body>
+    <!-- 기구 19종 — 전부 freejoint (자유 이동 물체). 이름/사이트 4개는 episode.py 호환용 유지 -->
+    <body name="instr_curette_lucas85" pos="0 0 0">
+      <joint type="free" armature="2e-5" damping="0.02"/>
+      <geom name="bl_Curette_Lucas85_g" type="mesh" mesh="bl_Curette_Lucas85" material="bl_SurgSteel" density="7800" condim="4" priority="2" friction="1.2 0.05 0.01" solref="0.005 1" solimp="0.98 0.999 0.001"/>
+    </body>
+    <body name="instr_elevator" pos="0 0 0">
+      <joint type="free" armature="2e-5" damping="0.02"/>
+      <geom name="bl_Elevator_301_g" type="mesh" mesh="bl_Elevator_301" material="bl_SurgSteel" density="7800" condim="4" priority="2" friction="1.2 0.05 0.01" solref="0.005 1" solimp="0.98 0.999 0.001"/>
+      <site name="elevator_R" pos="0.667 1.11 0.929" size="0.008" rgba="0.2 0.8 0.9 0.6" group="3"/>
+    </body>
+    <body name="instr_elevator_34s" pos="0 0 0">
+      <joint type="free" armature="2e-5" damping="0.02"/>
+      <geom name="bl_Elevator_34S_g" type="mesh" mesh="bl_Elevator_34S" material="bl_SurgSteel" density="7800" condim="4" priority="2" friction="1.2 0.05 0.01" solref="0.005 1" solimp="0.98 0.999 0.001"/>
+    </body>
+    <body name="instr_elevator_buser" pos="0 0 0">
+      <joint type="free" armature="2e-5" damping="0.02"/>
+      <geom name="bl_Elevator_Buser_g" type="mesh" mesh="bl_Elevator_Buser" material="bl_SurgSteel" density="7800" condim="4" priority="2" friction="1.2 0.05 0.01" solref="0.005 1" solimp="0.98 0.999 0.001"/>
+    </body>
+    <body name="instr_cryer" pos="0 0 0">
+      <joint type="free" armature="2e-5" damping="0.02"/>
+      <geom name="bl_Elevator_Cryer73_g" type="mesh" mesh="bl_Elevator_Cryer73" material="bl_SurgSteel" density="7800" condim="4" priority="2" friction="1.2 0.05 0.01" solref="0.005 1" solimp="0.98 0.999 0.001"/>
+      <site name="cryer_R" pos="0.384 1.049 0.947" size="0.008" rgba="0.2 0.8 0.9 0.6" group="3"/>
+    </body>
+    <body name="instr_elevator_cryer74" pos="0 0 0">
+      <joint type="free" armature="2e-5" damping="0.02"/>
+      <geom name="bl_Elevator_Cryer74_g" type="mesh" mesh="bl_Elevator_Cryer74" material="bl_SurgSteel" density="7800" condim="4" priority="2" friction="1.2 0.05 0.01" solref="0.005 1" solimp="0.98 0.999 0.001"/>
+    </body>
+    <body name="instr_elevator_molt" pos="0 0 0">
+      <joint type="free" armature="2e-5" damping="0.02"/>
+      <geom name="bl_Elevator_Molt_g" type="mesh" mesh="bl_Elevator_Molt" material="bl_SurgSteel" density="7800" condim="4" priority="2" friction="1.2 0.05 0.01" solref="0.005 1" solimp="0.98 0.999 0.001"/>
+    </body>
+    <body name="instr_forceps150" pos="0 0 0">
+      <joint type="free" armature="2e-5" damping="0.02"/>
+      <geom name="bl_Forceps_FX150_g" type="mesh" mesh="bl_Forceps_FX150" material="bl_SurgSteel" density="7800" condim="4" priority="2" friction="1.2 0.05 0.01" solref="0.005 1" solimp="0.98 0.999 0.001"/>
+      <site name="fx150_R" pos="0.364 0.992 0.931" size="0.008" rgba="0.2 0.8 0.9 0.6" group="3"/>
+    </body>
+    <body name="instr_forceps151" pos="0 0 0">
+      <joint type="free" armature="2e-5" damping="0.02"/>
+      <geom name="bl_Forceps_FX151_g" type="mesh" mesh="bl_Forceps_FX151" material="bl_SurgSteel" density="7800" condim="4" priority="2" friction="1.2 0.05 0.01" solref="0.005 1" solimp="0.98 0.999 0.001"/>
+      <site name="fx151_R" pos="0.522 0.992 0.933" size="0.008" rgba="0.2 0.8 0.9 0.6" group="3"/>
+    </body>
+    <body name="instr_forceps_fx17" pos="0 0 0">
+      <joint type="free" armature="2e-5" damping="0.02"/>
+      <geom name="bl_Forceps_FX17_g" type="mesh" mesh="bl_Forceps_FX17" material="bl_SurgSteel" density="7800" condim="4" priority="2" friction="1.2 0.05 0.01" solref="0.005 1" solimp="0.98 0.999 0.001"/>
+    </body>
+    <body name="instr_mirror" pos="0 0 0">
+      <joint type="free" armature="2e-5" damping="0.02"/>
+      <geom name="bl_Mirror_g" type="mesh" mesh="bl_Mirror" material="bl_SurgSteel" density="7800" condim="4" priority="2" friction="1.2 0.05 0.01" solref="0.005 1" solimp="0.98 0.999 0.001"/>
+    </body>
+    <body name="instr_needleholder" pos="0 0 0">
+      <joint type="free" armature="2e-5" damping="0.02"/>
+      <geom name="bl_NeedleHolder_g" type="mesh" mesh="bl_NeedleHolder" material="bl_SurgSteel" density="7800" condim="4" priority="2" friction="1.2 0.05 0.01" solref="0.005 1" solimp="0.98 0.999 0.001"/>
+    </body>
+    <body name="instr_probe" pos="0 0 0">
+      <joint type="free" armature="2e-5" damping="0.02"/>
+      <geom name="bl_Probe_g" type="mesh" mesh="bl_Probe" material="bl_SurgSteel" density="7800" condim="4" priority="2" friction="1.2 0.05 0.01" solref="0.005 1" solimp="0.98 0.999 0.001"/>
+    </body>
+    <body name="instr_retractor_minnesota" pos="0 0 0">
+      <joint type="free" armature="2e-5" damping="0.02"/>
+      <geom name="bl_Retractor_Minnesota_g" type="mesh" mesh="bl_Retractor_Minnesota" material="bl_SurgSteel" density="7800" condim="4" priority="2" friction="1.2 0.05 0.01" solref="0.005 1" solimp="0.98 0.999 0.001"/>
+    </body>
+    <body name="instr_rootpicker" pos="0 0 0">
+      <joint type="free" armature="2e-5" damping="0.02"/>
+      <geom name="bl_RootPicker_g" type="mesh" mesh="bl_RootPicker" material="bl_RootPickerPlastic" density="7800" condim="4" priority="2" friction="1.2 0.05 0.01" solref="0.005 1" solimp="0.98 0.999 0.001"/>
+    </body>
+    <body name="instr_scalpel_no3" pos="0 0 0">
+      <joint type="free" armature="2e-5" damping="0.02"/>
+      <geom name="bl_Scalpel_No3_g" type="mesh" mesh="bl_Scalpel_No3" material="bl_SurgSteel" density="7800" condim="4" priority="2" friction="1.2 0.05 0.01" solref="0.005 1" solimp="0.98 0.999 0.001"/>
+    </body>
+    <body name="instr_suturescissors_dean" pos="0 0 0">
+      <joint type="free" armature="2e-5" damping="0.02"/>
+      <geom name="bl_SutureScissors_Dean_g" type="mesh" mesh="bl_SutureScissors_Dean" material="bl_SurgSteel" density="7800" condim="4" priority="2" friction="1.2 0.05 0.01" solref="0.005 1" solimp="0.98 0.999 0.001"/>
+    </body>
+    <body name="instr_syringe_aspirating" pos="0 0 0">
+      <joint type="free" armature="2e-5" damping="0.02"/>
+      <geom name="bl_Syringe_Aspirating_g" type="mesh" mesh="bl_Syringe_Aspirating" material="bl_SurgSteel" density="7800" condim="4" priority="2" friction="1.2 0.05 0.01" solref="0.005 1" solimp="0.98 0.999 0.001"/>
+    </body>
+    <body name="instr_tissueforceps_adson" pos="0 0 0">
+      <joint type="free" armature="2e-5" damping="0.02"/>
+      <geom name="bl_TissueForceps_Adson_g" type="mesh" mesh="bl_TissueForceps_Adson" material="bl_SurgSteel" density="7800" condim="4" priority="2" friction="1.2 0.05 0.01" solref="0.005 1" solimp="0.98 0.999 0.001"/>
+    </body>
+
+    <!-- ============ 로봇 받침대 (카트 옆, 트레이에 손이 닿는 위치) ============ -->
+
+    <!-- ============ 의사 (Blender 리깅 캐릭터. 의자 헤드레스트 쪽 빈 공간으로 옮겨서
+         로봇과 팔이 닿는 거리로 재배치 — 원래 의자 옆(y=0.35)은 의자 폭(0.9m)이 로봇과
+         사이를 막아 팔이 안 닿았음. euler는 그대로 두고 위치만 옮김, 안 맞으면 조정 예정) -->
+    <!-- ================= 스테이징: 환자 (인체 메시) =================
+         캡슐/타원체 프리미티브로는 사람으로 안 보여서, 의사와 같은 인체 메시를 재사용해 눕혔다.
+         0.96배 축소로 신장 1.746 m (의사 1.819 m와 구분). 앉은 의사와 같은 원리 —
+         절단면은 가랑이(z=0.768), 회전축은 실제 고관절 (0, 0.025, 0.883).
+           상체·머리 : x축 -72° 회전 -> 등받이 경사(수평 18°)에 일치
+           다리      : x축 -90° 회전 -> 시트면에 수평
+         평행이동은 "등받이 면 파고듦 0, 시트면 파고듦 0" 연립해로 구함 (오차 0.000 mm).
+         전부 시각 전용(contype/conaffinity=0) -> 물리·nq 영향 없음. -->
+    <body name="patient" pos="0 0 0">
+      <body name="patient_upper" pos="0 -0.8704 0.6554" quat="0.809017 -0.587785 0 0">
+        <geom name="patient_torso_mesh" type="mesh" mesh="pat_torso" material="patient_gown"
+              contype="0" conaffinity="0"/>
+        <geom name="patient_head_mesh" type="mesh" mesh="pat_head" material="patient_skin"
+              contype="0" conaffinity="0"/>
+      </body>
+      <!-- 충돌체: 시각 메시는 contype=0(물리 무영향)이라 로봇 그리퍼가 환자를 그대로 통과했다.
+           메시-메시 충돌은 무겁고 불안정하므로 프리미티브로 몸을 근사해 충돌만 담당시킨다.
+           group="3" 이라 뷰어 기본 화면에는 안 보인다. -->
+      <geom name="pat_col_head"  type="sphere"  pos="0 0.655 1.135" size="0.105" group="3" rgba="1 0 0 0.25"/>
+      <geom name="pat_col_chest" type="capsule" fromto="0 0.05 0.955 0 0.47 1.055" size="0.118" group="3" rgba="1 0 0 0.25"/>
+      <geom name="pat_col_abdo"  type="capsule" fromto="0 -0.18 0.915 0 0.06 0.955" size="0.115" group="3" rgba="1 0 0 0.25"/>
+      <geom name="pat_col_legs"  type="capsule" fromto="0 -0.18 0.900 0 -0.80 0.900" size="0.105" group="3" rgba="1 0 0 0.25"/>
+      <geom name="pat_col_arm_l" type="capsule" fromto="-0.185 0.30 0.985 -0.195 -0.08 0.955" size="0.062" group="3" rgba="1 0 0 0.25"/>
+      <geom name="pat_col_arm_r" type="capsule" fromto="0.185 0.30 0.985 0.195 -0.08 0.955" size="0.062" group="3" rgba="1 0 0 0.25"/>
+      <body name="patient_lower" pos="0 -0.9059 0.9295" quat="0.707107 -0.707107 0 0">
+        <geom name="patient_legs_mesh" type="mesh" mesh="pat_legs" material="patient_gown"
+              contype="0" conaffinity="0"/>
+      </body>
+    </body>
+
+    <!-- ================= 스테이징: 앉은 의사 =================
+         메시는 "서 있는" 자세로 baked 돼 있고 .blend 에도 아마추어가 없다. 그래서 몸통 메시를
+         잘라 3조각으로 만들고 강체변환으로 앉은 자세를 만든다 (관절 추가 없음 -> nq 불변).
+
+         핵심: 절단면은 **가랑이(z=0.80)**, 회전축은 그보다 위인 **실제 고관절(z=0.92)**.
+         골반에서 자르면 엉덩이 덩어리째 앞으로 돌아가 넓적한 판때기가 되고 절단면 캡이 드러난다.
+         가랑이에서 자르면 회전하는 건 다리뿐, 골반/엉덩이는 몸통에 남아 자연스럽다.
+         허벅지는 수평이 아니라 **15° 아래로** 기울인다 (하이스툴에 앉은 술자 자세).
+
+           상체   : 평행이동 (0,0,-0.284)  -> 고관절 z=0.636, 엉덩이 절단면 z=0.516 (좌면에 묻힘)
+           허벅지 : 고관절 (0,0.026,0.92) 둘레로 x축 -75° 회전 -> 무릎 z=0.515
+           정강이 : 무릎에서 +75° 되돌림 = 회전 상쇄, 순수 평행이동 -> 발바닥 z=0.015
+
+         body euler z=1.5708 은 원본 그대로 = 의사는 +x(로봇)를 향한다.
+         고관절 월드 (-0.40, 0.48, 0.636), 발끝 최근접 (-0.29, 0.41) -> 의자축까지 0.50 > 베이스반경 0.45 -->
+    <body name="doctor_body" pos="-0.374 0.48 0" euler="0 0 1.5708">
+      <!-- 상체 전방 경사 20°: 고관절 (0, 0.026, 0.636) 둘레 회전. 술자가 술야로 몸을 숙이는 자세이며,
+           이게 있어야 어깨가 0.18 m 앞으로 나와 사양서 §9-2 전달구역 V 에 손이 닿는다.
+           상체 조각이 이미 다리와 분리돼 있어 메시 재절단 없이 body 하나로 구현. -->
+      <body name="doctor_upper" pos="0 0.026 0.636" euler="0.3491 0 0">
+      <geom name="doctor_torso_mesh" type="mesh" mesh="doc_seat_torso" material="doc_scrub" pos="0 -0.026 -0.920" contype="0" conaffinity="0"/>
+      <!-- 머리 속채움: cap_mask 는 두께 없는 껍데기라 각도에 따라 내부가 비쳐 "깨진" 것처럼 보인다.
+           (메시 폭 0.40 m 는 수술모 끈까지 포함한 값이고, 끈은 얇은 리본이라 클로즈업에서 파편처럼 보인다)
+           안쪽에 불투명 타원체를 넣어 관통 시야를 막는다. -->
+      <geom name="doc_col_torso" type="capsule" fromto="0 -0.026 -0.30 0 -0.026 0.34" size="0.155" group="3" rgba="0 0 1 0.25"/>
+      <geom name="doctor_head_core" type="ellipsoid" pos="0.002 0.019 0.723" size="0.076 0.086 0.106"
+            material="doc_scrub"/>
+      <geom name="doctor_capmask_mesh" type="mesh" mesh="doc_cap_mask" material="doc_scrub" pos="0 -0.026 -0.920" contype="0" conaffinity="0"/>
+      <geom name="doctor_faceskin_mesh" type="mesh" mesh="doc_face_skin" material="doc_skin" pos="0 -0.026 -0.920" contype="0" conaffinity="0"/>
+      <!-- 왼팔(팔뚝+손): 상체를 20° 숙이면 baked 된 팔이 함께 딸려와 "가슴에서 손이 나오는" 모양이 된다.
+           실제로는 팔이 중력 방향으로 늘어지므로, 왼쪽 어깨 (-0.174, 0.060, 0.405) 둘레로
+           상체 경사와 같은 크기만큼 반대로(-20°) 돌려 수직으로 되돌린다. -->
+      <body name="doctor_l_arm" pos="-0.174 0.060 0.405" euler="-0.3491 0 0">
+        <geom name="doctor_lefthand_mesh" type="mesh" mesh="doc_left_hand" material="doc_skin"
+              pos="0.174 -0.086 -1.325" contype="0" conaffinity="0"/>
+        <geom name="doctor_lhand_mesh" type="mesh" mesh="doc_seat_lhand" material="doc_skin"
+              pos="0.174 -0.086 -1.325" contype="0" conaffinity="0"/>
+      </body>
+      <body name="doctor_r_shoulder" pos="0.174 0.060 0.405">
+        <joint name="doctor_r_shoulder_yaw" armature="0.02"   type="hinge" axis="0 0 1" range="-1.3 1.3" limited="true" damping="3"/>
+        <joint name="doctor_r_shoulder_pitch" armature="0.02" type="hinge" axis="1 0 0" range="-0.3 3.0" limited="true" damping="3"/>
+        <joint name="doctor_r_shoulder_roll" armature="0.02"  type="hinge" axis="0 1 0" range="-1.3 1.3" limited="true" damping="3"/>
+        <!-- 어깨 이음: 몸통 메시는 오른팔을 떼어낸 자리가 뚫려 V자 홈이 보인다.
+             구멍을 메우면 면을 가로지르는 파편이 생기므로, 구 형태로 덮어 가린다. -->
+        <geom name="doctor_shoulder_cap" type="ellipsoid" pos="-0.005 -0.008 0.100" size="0.058 0.056 0.052"
+              material="doc_scrub"/>
+        <geom name="doctor_upperarm_mesh" type="mesh" mesh="doc_upper_arm" material="doc_scrub" contype="0" conaffinity="0"/>
+        <body name="doctor_r_elbow" pos="0.003 -0.006 -0.225">
+          <joint name="doctor_r_elbow_joint" armature="0.02" type="hinge" axis="1 0 0" range="0 2.4" limited="true" damping="3"/>
+          <geom name="doctor_forearm_mesh" type="mesh" mesh="doc_forearm" material="doc_skin" contype="0" conaffinity="0"/>
+          <body name="doctor_r_wrist" pos="0.007 0.003 -0.180">
+            <joint name="doctor_r_wrist_joint" armature="0.02" type="hinge" axis="1 0 0" range="-1.2 1.2" limited="true" damping="3"/>
+            <!-- 원본 doc_hand 메시는 손바닥 면이 없고 손가락이 얇은 리본이라 "손가락 2개"처럼 깨져 보였다
+                 (위/아래에서 렌더하면 손바닥이 통째로 비어 있음). 프리미티브로 교체해 형태를 확정한다.
+                 손목 로컬 -z 가 손끝 방향, **로컬 +x 가 손바닥 면의 법선**이다.
+                 팔 자세는 이 +x 가 월드 +z(천장)를 향하도록 풀었다 -> 기구를 받는 손바닥 위 자세. -->
+            <geom name="doctor_palm" type="box" pos="0 0 -0.090" size="0.011 0.045 0.052"
+                  material="doc_skin"/>
+            <geom name="doctor_finger1" type="capsule" fromto="0.006 -0.033 -0.138 0.034 -0.034 -0.178" size="0.0095"
+                  material="doc_skin"/>
+            <geom name="doctor_finger2" type="capsule" fromto="0.006 -0.011 -0.140 0.037 -0.011 -0.184" size="0.0098"
+                  material="doc_skin"/>
+            <geom name="doctor_finger3" type="capsule" fromto="0.006 0.011 -0.140 0.036 0.011 -0.182" size="0.0096"
+                  material="doc_skin"/>
+            <geom name="doctor_finger4" type="capsule" fromto="0.006 0.032 -0.136 0.031 0.033 -0.172" size="0.0088"
+                  material="doc_skin"/>
+            <geom name="doctor_thumb" type="capsule" fromto="0.008 -0.046 -0.070 0.030 -0.080 -0.104" size="0.0110"
+                  material="doc_skin"/>
+            <geom name="doctor_wristpad" type="capsule" fromto="0 0 -0.030 0 0 -0.052" size="0.026"
+                  material="doc_skin"/>
+            <site name="doctor_r_grip" pos="-0.01 -0.02 -0.16" size="0.006" rgba="1 1 0 0.6" group="3"/>
+          </body>
+        </body>
+      </body>
+      </body>
+      <!-- 다리는 상체 경사를 따라가면 안 되므로 doctor_upper 밖(= doctor_body 직속)에 둔다 -->
+      <body name="doctor_thigh" pos="0 -0.8694 0.4229" quat="0.793353 -0.608761 0 0">
+        <geom name="doctor_thigh_mesh" type="mesh" mesh="doc_seat_thigh" material="doc_scrub" contype="0" conaffinity="0"/>
+      </body>
+      <body name="doctor_shin" pos="0 -0.4151 0.0150">
+        <geom name="doctor_shin_mesh" type="mesh" mesh="doc_seat_shin" material="doc_scrub" contype="0" conaffinity="0"/>
+      </body>
+    </body>
+
+
+    <!-- ============ 수술준비대(카트) + 트레이 (Blender 실측: 카트 1.2x0.5m, 트레이 0.64x0.32m) ============ -->
+    <!-- 로봇과 같은 편으로 옮김 + 2026-09-05 로봇이 뒤로 가면서 y 를 0.20 더 당김
+         (기구 최악 신전율 1.06 -> 0.78, 8개가 도달불가였다) — 로봇 팔이 닿으려면 트레이가 로봇 근처에 있어야 함 -->
+    
+
+    
+
+    <!-- ============ 기구들 (Blender에서 확정한 19종 대표 세트, 캡슐로 단순화) ============ -->
+    <!-- 앞 4개(instr_elevator/cryer/forceps150/forceps151)는 이름·_R 사이트 그대로 유지 -->
+    <!--      (episode.py가 이 이름으로 찾아서 씀 — 이름/사이트 건드리지 말 것) -->
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
+    <!-- ============ 로봇 받침대 (순수 장식용, 로봇과 같은 편으로 이동) ============ -->
+
+
+
+    <!-- ============ 의사 (Blender에서 리깅한 실제 캐릭터 메시, 로봇 반대편/예전 로봇 자리로 이동) ============ -->
+    
+
+
+
+    <!-- ============ 진료 의자 ============ -->
+    <!-- 의자는 상판(seat) + 등받이(back) + 머리받침(head) 3개 박스로만 만든 아주 단순한 모양 -->
+        <!-- ============ 진료 의자 (베이스+기둥 추가, 색상 개선. 등받이/헤드레스트 위치는 환자와
+         이미 맞아떨어지던 기존 좌표 그대로 유지 — 새로 각도 계산하면 환자랑 안 맞을 위험 있어서) ============ -->
+    
+
+    <!-- ============ 환자 (의자에 누운 사람, 머리+몸통만 있는 간단한 모형) ============ -->
+    
+
+    <!-- ============ 트레이 (기구 담아두는 판) ============ -->
+    <!-- 기구들과 색이 겹쳐서 잘 안 보이던 문제 — 트레이를 좀 더 어두운 회색으로 낮춰서
+         밝은 은색 기구들과 대비가 나게 함 (기구 색은 아래 각 기구에서 rgba 참고) -->
+    
+    <!-- ⚠️ 트레이 자체(pos="-0.15 -0.25 0.80")를 옮기면 로봇 팔이 거기 안 닿을 수 있음.
+         옮기고 싶으면 나한테 말해줘 — 팔 각도를 다시 계산해줄게. -->
+
+    <!-- ============ 기구 4종 (트레이 위에 놓인 도구들. 로봇이 집는 대상) ============ -->
+    <!-- 각 기구는 <freejoint/>가 있어서 자유롭게 움직일 수 있는 "물건"임 (사람 손처럼 관절로 고정된 게 아님) -->
+
+    <!-- 슬롯1: 직선기자 (핀셋처럼 생긴 얇은 기구) — 로봇이 실제로 집는 기구라 위치는 그대로 둠
+         (옮기면 로봇 팔 각도를 처음부터 다시 계산해야 함) -->
+    
+
+    <!-- 슬롯2: Cryer 기자 (비슷한 핀셋 종류, 날 각도만 다름) — 트레이 안쪽으로 위치 정리 -->
+    
+
+    <!-- 슬롯3: 겸자(집게) #150 — 지금은 움직이지 않는 고정 소품(장식용). 트레이 안쪽으로 위치 정리 -->
+    
+
+    <!-- 슬롯4: 겸자(집게) #151 — 위와 동일한 구조. 원래 트레이 밖(x=0.10)으로 5cm 벗어나
+         떠 있던 걸 트레이 안으로 옮김 -->
+    
+    <!-- ⚠️ 기구 4개 중 하나를 통째로 지우고 싶으면, 그 까지 전부 지우면 돼. 다만 episode.py 코드가 기구 이름을
+         찾아서 쓰는 부분이 있어서, 지운 다음엔 나한테 알려주면 안전하게 정리해줄게. -->
+
+    <!-- ============ 로봇 받침대 (로봇 팔이 서 있는 기둥. 순수 장식용 모형) ============ -->
+    <!-- 바닥판(base) + 기둥(column) + 팔이 얹히는 상판(plate) 3단 구성 -->
+  <!-- 바닥에 놓인 원판 -->
+  <!-- 세로로 긴 기둥 -->
+  <!-- 팔이 올라앉는 맨 위 판 -->
+    <!-- ⚠️ 색깔만 바꾸는 건 자유롭게 해도 됨. 다만 높이(pos의 세 번째 숫자)나 크기(size)를
+         바꾸면 로봇 팔 자체(openarm_bimanual.xml)와 안 맞을 수 있어 — 이건 나한테 말해줘. -->
+
+    <!-- ============ 카메라가 바라보는 지점 (눈에 안 보임, 화면 구도용) ============ -->
+    <!-- 스테이징: 의사-환자-로봇 3자 구도의 중심(전달구역)으로 이동 -->
+    <body name="cam_target" pos="0.0 0.30 1.05"/>
+
+    <!-- ============ 중계대 (선택적 소품, 지금 애니메이션엔 안 쓰임) ============ -->
+    <geom name="stage" type="box" pos="0.05 -0.42 0.845" size="0.06 0.05 0.005" rgba="0.75 0.76 0.78 1"/>
+
+    <!-- ============ 의사 (환자 머리 쪽에 서 있는 사람 모형) ============ -->
+    
+
+    <!-- ============ 전달 구역 (로봇이 기구를 놓는 자리 표시. 반투명 초록 박스) ============ -->
+    <!-- contype/conaffinity="0" 이라 실제로 부딪히지 않는, 눈에만 보이는 표시용 박스 -->
+    <!-- ⚠️ 이 박스를 옮기면 "로봇이 어디서 건네주는지"가 바뀌는 거라, 팔 각도를
+         다시 계산해야 함(직접조절_가이드.md §4 방법 A) — 나한테 말해줘도 됨. -->
+
+    <!-- ============ 금지 구역 (여기 들어가면 안 된다는 표시. 반투명 빨강 박스) ============ -->
+    <!-- 이것도 눈에만 보이는 표시용이라 위치/색깔/크기 자유롭게 바꿔도 안전함 -->
+
+  </worldbody>
+
+
+  <!-- 의사 오른팔은 액추에이터 없는 수동 관절이라, 환자/자기 몸통과 접촉하면 충격으로 발산한다
+       (t=10.8s 에서 doctor_r_shoulder_yaw 의 |qacc| 8.5e6 관측). 로봇과의 충돌만 남기고 제외한다. -->
+  <contact>
+    <exclude body1="doctor_r_shoulder" body2="patient"/>
+    <exclude body1="doctor_r_elbow"    body2="patient"/>
+    <exclude body1="doctor_r_wrist"    body2="patient"/>
+    <exclude body1="doctor_r_shoulder" body2="doctor_upper"/>
+    <exclude body1="doctor_r_elbow"    body2="doctor_upper"/>
+    <exclude body1="doctor_r_wrist"    body2="doctor_upper"/>
+    <exclude body1="doctor_r_shoulder" body2="doctor_l_arm"/>
+    <exclude body1="doctor_r_elbow"    body2="doctor_l_arm"/>
+    <exclude body1="doctor_r_wrist"    body2="doctor_l_arm"/>
+    <exclude body1="doctor_r_wrist"    body2="doctor_thigh"/>
+    <exclude body1="doctor_r_elbow"    body2="doctor_thigh"/>
+  </contact>
+</mujoco>

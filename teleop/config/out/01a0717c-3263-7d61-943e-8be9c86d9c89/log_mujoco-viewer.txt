@@ -1,0 +1,11 @@
+[model] Loading scene: ../../sim/main_v3_teleop.xml
+[model] Collision (Contact) detection is ENABLED.
+[model] Resettable scene joints: instr_curette_lucas85, instr_elevator, instr_elevator_34s, instr_elevator_buser, instr_cryer, instr_elevator_cryer74, instr_elevator_molt, instr_forceps150, instr_forceps151, instr_forceps_fx17, instr_mirror, instr_needleholder, instr_probe, instr_retractor_minnesota, instr_rootpicker, instr_scalpel_no3, instr_suturescissors_dean, instr_syringe_aspirating, instr_tissueforceps_adson, doctor_r_shoulder_yaw, doctor_r_shoulder_pitch, doctor_r_shoulder_roll, doctor_r_elbow_joint, doctor_r_wrist_joint
+[model] Pose origin frame: 'arm_origin' (site)
+[loop] target_fps=30, effective_fps=29.4118, model_timestep=0.002, steps_per_frame=17, loop_dt=0.034
+{"timestamp":"2026-09-05T12:12:41.054063Z","level":"INFO","fields":{"message":"","name":"MeterProvider.GlobalSet","message":"Global meter provider is set. Meters can now be created using global::meter() or global::meter_with_scope()."},"target":"opentelemetry"}
+{"timestamp":"2026-09-05T12:12:41.055389Z","level":"WARN","fields":{"message":"Ignoring output `arm_right_observation` not in node's output list."},"target":"dora_node_api::node"}
+{"timestamp":"2026-09-05T12:12:41.055421Z","level":"WARN","fields":{"message":"Ignoring output `arm_left_observation` not in node's output list."},"target":"dora_node_api::node"}
+[dora] Event loop started.
+[dora] Event loop ended – signalling shutdown.
+[main] Shutdown complete.

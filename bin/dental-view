@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# Dental_VLA 씬 GUI 뷰어. 인자: 카메라 이름(staging|wide|free) 또는 --step
+export DENTAL_VLA="${DENTAL_VLA:-$HOME/projects/Dental_VLA}"
+if [ ! -d "$DENTAL_VLA" ]; then
+  echo "오류: DENTAL_VLA 경로가 없습니다 -> $DENTAL_VLA" >&2
+  echo "      다른 위치에 있으면:  export DENTAL_VLA=/실제/경로" >&2
+  exit 1
+fi
+export MUJOCO_GL=glfw
+export DISPLAY="${DISPLAY:-:1}"
+exec python3 "$DENTAL_VLA/sim/scripts/view_teleop.py" "$@"
