@@ -23,7 +23,7 @@ Quest 3 는 브라우저로 ``https://<PC-IP>:48322/client/#/sim`` 에 접속해
 ----
 IsaacTeleop 은 자체 venv 에 설치돼 있으므로 **그 파이썬으로** 실행해야 한다:
 
-    /home/user/vr_teleop/cloudxr_service_venv/bin/python3 \
+    "$CXR_PY"          # IsaacTeleop 이 설치된 python
         teleop/dental_vla_teleop/isaacteleop_bridge.py --print
 
 좌표계

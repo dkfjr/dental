@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
 # VR 텔레옵. dora 가 없으면 최초 1회 설치 후 이어서 실행 (실행되면 MuJoCo 씬도 같이 뜬다)
+# 저장소 위치 자동 추정: 이 스크립트가 <repo>/bin 안에 있으면 그 상위를 쓴다
+if [ -z "${DENTAL_VLA:-}" ]; then
+  _self=$(readlink -f "${BASH_SOURCE[0]:-$0}")
+  _cand=$(dirname "$(dirname "$_self")")
+  [ -f "$_cand/sim/main_v3_teleop.xml" ] && DENTAL_VLA="$_cand"
+fi
 export DENTAL_VLA="${DENTAL_VLA:-$HOME/projects/Dental_VLA}"
 if [ ! -d "$DENTAL_VLA" ]; then
   echo "오류: DENTAL_VLA 경로가 없습니다 -> $DENTAL_VLA" >&2
