@@ -1,0 +1,79 @@
+# Copyright 2026 Dental-VLA project. Apache-2.0.
+#
+# VR teleoperation of the OpenArm bimanual arms in the DENTAL scene (MuJoCo).
+#
+# This is the enactic/dora-openarm-vr MuJoCo dataflow, re-pointed at our dental
+# scene via the mujoco node's `--xml` argument. The Quest receiver, IK, and
+# frame conventions are UNCHANGED, so the existing Meta Quest 3 teleop APK works
+# as-is against this scene.
+#
+# Pipeline:  Quest 3 --UDP--> udp-receiver --pose--> ik --joint angles--> mujoco-viewer
+#
+# Run:
+#   uv run dora build config/dataflow-mujoco.yaml --uv
+#   uv run dora run   config/dataflow-mujoco.yaml --uv
+#
+# The DENTAL_SCENE env var lets you swap scenes without editing this file:
+#   export DENTAL_SCENE=$PWD/third_party/openarm_mujoco/v2/dental/dental_extraction_scene.xml
+
+nodes:
+  - id: quittable-tick-leader
+    build: pip install git+https://github.com/enactic/dora-openarm-quitter.git
+    path: dora-openarm-quitter
+    inputs:
+      tick: dora/timer/millis/2
+    outputs:
+      - tick
+
+  - id: udp-receiver
+    build: pip install git+https://github.com/enactic/dora-openarm-vr.git
+    path: dora-openarm-quest-receiver
+    args: "--host 0.0.0.0 --port 5006"
+    inputs:
+      tick: quittable-tick-leader/tick
+    outputs:
+      - pose_right
+      - trigger_right
+      - grip_right
+      - pose_left
+      - pose_reference
+      - trigger_left
+      - grip_left
+      - joystick_x_left
+      - joystick_y_left
+      - joystick_x_right
+      - joystick_y_right
+      - button_a
+      - button_b
+      - button_x
+      - button_y
+      - status
+
+  - id: ik
+    build: pip install git+https://github.com/enactic/dora-openarm-kinematics
+    path: dora-openarm-ik
+    args: "--mode bimanual --max-iters 10 --dt 0.1 --damping 0.1 --posture-cost 0.01 --lm-damping 0.01"
+    inputs:
+      tick: quittable-tick-leader/tick
+      target_right: udp-receiver/pose_right
+      target_left:  udp-receiver/pose_left
+      trigger_right: udp-receiver/trigger_right
+      trigger_left:  udp-receiver/trigger_left
+    outputs:
+      - position_left
+      - position_right
+      - status
+
+  # ── MuJoCo viewer, loading the DENTAL scene via --xml ../third_party/openarm_mujoco/v2/dental/dental_scene.xml
+  - id: mujoco-viewer
+    build: pip install git+https://github.com/enactic/dora-openarm-mujoco
+    path: dora-openarm-mujoco
+    args: "--xml ../third_party/openarm_mujoco/v2/dental/dental_scene.xml --keyframe home --viewer --debug-frames"
+    inputs:
+      position_left:  ik/position_left
+      position_right: ik/position_right
+      pose_right:     udp-receiver/pose_right
+      pose_left:      udp-receiver/pose_left
+      joystick_y:     udp-receiver/joystick_y_left
+    outputs:
+      - status

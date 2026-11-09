@@ -1,0 +1,100 @@
+# Copyright 2026 Dental-VLA project. Apache-2.0.
+#
+# VR teleop — OR scene v1.0 (Blender scene scenes/dental_or_v1.blend + OpenArm v1.0, black).
+#
+#   Quest 3 --UDP:5006--> udp-receiver --pose--> ik --joints--> mujoco-viewer --jpeg--> recorder
+#
+# Run (nodes are already installed in .venv, so no build step is needed):
+#   uv run dora run config/dataflow-mujoco-or-v1.yaml --uv
+# Without a headset, in another terminal:
+#   PYTHONPATH=src .venv/bin/python -m dental_vla.mock_quest_sender
+#
+# Scene is generated — edit the .blend, then: tools/or_v1/export_all.sh
+# The original v2 flow (config/dataflow-mujoco.yaml) is untouched.
+
+nodes:
+  - id: quittable-tick-leader
+    path: dora-openarm-quitter
+    inputs:
+      tick: dora/timer/millis/2
+    outputs:
+      - tick
+
+  - id: udp-receiver
+    path: dora-openarm-quest-receiver
+    args: "--host 0.0.0.0 --port 5006"
+    inputs:
+      tick: quittable-tick-leader/tick
+    outputs:
+      - pose_right
+      - trigger_right
+      - grip_right
+      - pose_left
+      - pose_reference
+      - trigger_left
+      - grip_left
+      - joystick_x_left
+      - joystick_y_left
+      - joystick_x_right
+      - joystick_y_right
+      - button_a
+      - button_b
+      - button_x
+      - button_y
+      - status
+
+  - id: ik
+    path: dora-openarm-ik
+    # --xml is required: without it the IK solves against the upstream demo cell, whose arm
+    # base pose differs from this scene. Tuning copied from the previous Blender-scene teleop
+    # (~/projects/Dental_VLA/teleop): full extension allowed, no posture pull-back.
+    args: "--xml ../third_party/openarm_mujoco/v1/dental_or/dental_or_scene_v1.0.xml --keyframe home
+           --mode bimanual --max-iters 30 --dt 0.1 --damping 0.05 --posture-cost 0.0
+           --lm-damping 0.005 --no-joint-braking"
+    inputs:
+      tick: quittable-tick-leader/tick
+      target_right: udp-receiver/pose_right
+      target_left:  udp-receiver/pose_left
+      trigger_right: udp-receiver/trigger_right
+      trigger_left:  udp-receiver/trigger_left
+    outputs:
+      - position_left
+      - position_right
+      - status
+
+  # v1 gripper fix: trigger pulled = closed on BOTH hands, proportional (see gripper_remap.py)
+  - id: gripper
+    path: ../src/dental_vla/gripper_remap.py
+    inputs:
+      position_left:  ik/position_left
+      position_right: ik/position_right
+      trigger_left:   udp-receiver/trigger_left
+      trigger_right:  udp-receiver/trigger_right
+    outputs:
+      - position_left
+      - position_right
+
+  - id: mujoco-viewer
+    path: dora-openarm-mujoco
+    # --ctrl + --enable-collision: step physics so the arms collide with furniture and can
+    # push/grasp instruments. --render publishes camera_ceiling for the recorder.
+    args: "--xml ../third_party/openarm_mujoco/v1/dental_or/dental_or_scene_v1.0.xml --keyframe home
+           --viewer --debug-frames --ctrl --enable-collision --render"
+    inputs:
+      position_left:  gripper/position_left
+      position_right: gripper/position_right
+      pose_right:     udp-receiver/pose_right
+      pose_left:      udp-receiver/pose_left
+      joystick_y:     udp-receiver/joystick_y_left
+      button_x:       udp-receiver/button_x
+    outputs:
+      - status
+      - camera_ceiling
+      - camera_head_left
+
+  - id: recorder
+    path: ../src/dental_vla/video_recorder.py
+    args: "--out ../out/videos/teleop_or_v1.mp4 --fps 30"
+    inputs:
+      image: mujoco-viewer/camera_ceiling        # left: third-person
+      image2: mujoco-viewer/camera_head_left     # right: tray close-up (from across the cart)

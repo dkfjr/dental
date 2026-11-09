@@ -1,0 +1,30 @@
+# Copyright 2026 Dental-VLA project. Apache-2.0.
+[project]
+name = "dental-vla"
+version = "0.1.0"
+description = "Dental VLA — MuJoCo dental workcell scene + VR teleoperation (OpenArm / dora-rs)"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "mujoco>=3.2",
+    "numpy>=1.26",
+    "scipy>=1.11",
+]
+
+[project.optional-dependencies]
+# For rendering preview images in scene_check --render
+render = ["pillow>=10"]
+# The teleop pipeline nodes (installed by the dora dataflow build step, listed
+# here for reference): dora-rs==0.5.0, and the enactic nodes pulled from git.
+teleop = ["dora-rs==0.5.0", "pyarrow>=17"]
+
+[project.scripts]
+dental-mock-quest = "dental_vla.mock_quest_sender:main"
+dental-scene-check = "dental_vla.scene_check:main"
+
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]

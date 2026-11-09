@@ -1,0 +1,26 @@
+# Copyright 2026 Dental-VLA project. Apache-2.0.
+# Metadata for teleop data-collection runs (dora-openarm-dataset-recorder).
+
+location: KU Anam Hospital OMFS (sim)
+operator: Ju Gyeongtae
+tasks:
+  - prompt: Hand the elevator to the surgeon.
+    description: >
+      Pick the elevator from the tray and place it in the safety zone,
+      handle toward the surgeon, without passing over the patient's face.
+  - prompt: Hand the scalpel to the surgeon.
+    description: Pick the scalpel and deliver it to the surgeon's hand, blade-safe.
+equipment:
+  id: DentalVLA
+  version: "0.1"
+  embodiments:
+    arms:
+      id: OpenArm
+      version: "2.0"
+  perceptions:
+    cameras:
+      wrist_left: {}
+      wrist_right: {}
+      ceiling: {}
+      head_left: {}
+      head_right: {}

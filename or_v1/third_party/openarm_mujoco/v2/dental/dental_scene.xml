@@ -1,0 +1,177 @@
+<!--
+Copyright 2026 Dental-VLA project.
+OpenArm assets © 2026 Enactic, Inc., used under the Apache License 2.0.
+
+Dental-VLA canonical scene — surgeon-interaction handover (assist openarm)
+==========================================================================
+사양서 v1.4 (§9 transfer volume · §10 hand-off · §20-2 Arm A/B 분리) 정합.
+어시스트 openarm이 "환자를 사이에 두고 술자에게 기구를 전달"하는 구조.
+
+Top-down (arms/pedestal at world origin, reaching +x; patient crosswise on y):
+
+     +y  ASSISTANT zone ─ [ TRAY ]     (Arm B: 트레이·S 만)
+          [ S staging ]
+     0    ── OpenArm base ──  [ V transfer ] ── patient chest/chin
+     -y  OPERATOR zone ── patient FACE (NO-FLY) ── surgeon hand (Arm A: V·S)
+
+Face/head sits at -y BEYOND the arm reach bubble → arms never pass over the
+face (no-fly). Handover happens in V over chin→chest, reachable by Arm A.
+
+Benchmark predicate geometry (sites):
+  V_zone / nofly_zone / stage_next / stage_used / surgeon_hand
+  landmark_C (chin) / landmark_E (eye) / surgical_site (mouth)
+  per-instrument R (robot grasp, blue) / O (operator grasp, amber) / W (working end, red)
+Instruments are first-pass primitives (roadmap 1차). 'home' keyframe: tools/build_scene.py.
+-->
+
+<mujoco model="dental_vla">
+  <compiler angle="radian"/>
+  <statistic center="0.42 -0.05 0.5" extent="1.25" meansize="0.05"/>
+  <option timestep="0.001" cone="elliptic" impratio="10"/>
+
+  <visual>
+    <headlight diffuse="0.65 0.65 0.65" ambient="0.4 0.4 0.4" specular="0 0 0"/>
+    <rgba haze="0.15 0.25 0.35 1"/>
+    <global azimuth="120" elevation="-22" offwidth="1280" offheight="1280"/>
+    <quality shadowsize="8192"/>
+  </visual>
+
+  <asset>
+    <texture type="skybox" builtin="gradient" rgb1="0.5 0.55 0.6" rgb2="0.1 0.12 0.15" width="512" height="3072"/>
+    <texture type="2d" name="groundplane" builtin="checker" mark="edge" rgb1="0.32 0.34 0.38" rgb2="0.26 0.28 0.32"
+      markrgb="0.6 0.6 0.6" width="300" height="300"/>
+    <material name="groundplane" texture="groundplane" texuniform="true" texrepeat="5 5" reflectance="0.15"/>
+
+    <material name="chair_mat"   rgba="0.22 0.30 0.48 1"/>
+    <material name="skin_mat"    rgba="0.86 0.68 0.56 1"/>
+    <material name="drape_mat"   rgba="0.20 0.45 0.55 1"/>
+    <material name="tray_mat"    rgba="0.75 0.78 0.82 1" reflectance="0.25"/>
+    <material name="stage_mat"   rgba="0.60 0.62 0.68 1"/>
+    <material name="steel"       rgba="0.80 0.82 0.85 1" reflectance="0.35" shininess="0.7"/>
+    <material name="steel_dark"  rgba="0.55 0.57 0.60 1" reflectance="0.30"/>
+    <material name="handle_blue" rgba="0.20 0.45 0.80 1"/>
+    <material name="mirror_mat"  rgba="0.70 0.85 0.95 1" reflectance="0.6"/>
+    <material name="glass_mat"   rgba="0.75 0.85 0.80 0.5"/>
+    <material name="glove_mat"   rgba="0.35 0.65 0.85 1"/>
+    <material name="V_mat"       rgba="0.20 0.85 0.35 0.16"/>
+    <material name="nofly_mat"   rgba="0.90 0.20 0.20 0.14"/>
+    <material name="R_mat"       rgba="0.15 0.55 1.00 1"/>
+    <material name="O_mat"       rgba="1.00 0.75 0.15 1"/>
+    <material name="W_mat"       rgba="0.95 0.25 0.25 1"/>
+
+    <model name="arm_pedestal" file="../pedestal/openarm_pedestal.xml"/>
+  </asset>
+
+  <worldbody>
+    <light pos="0.4 -0.2 2.2" dir="0 0 -1" directional="true"/>
+    <geom name="floor" size="0 0 0.05" type="plane" material="groundplane"/>
+
+    <camera name="ceiling"  pos="0.44 -0.05 1.65" xyaxes="1 0 0 0 1 0" fovy="62"/>
+    <camera name="operator" pos="0.44 -1.0 0.95" xyaxes="1 0 0 0 0.55 1" fovy="58"/>
+    <camera name="overview" pos="1.3 -0.7 1.05" xyaxes="0.5 0.86 0 -0.42 0.24 0.9" fovy="56"/>
+
+    <!-- ===== OpenArm bimanual on pedestal (assistant base, at origin) ===== -->
+    <attach model="arm_pedestal" prefix=""/>
+
+    <!-- ================= Dental chair ================= -->
+    <body name="chair" pos="0.46 -0.05 0.20">
+      <geom name="chair_back" type="box" size="0.15 0.44 0.02" pos="0 0 0.19" material="chair_mat" contype="1" conaffinity="1"/>
+      <geom name="chair_col"  type="box" size="0.06 0.06 0.20" pos="0 0.10 -0.02" material="chair_mat"/>
+    </body>
+
+    <!-- ================= Patient (supine, head at -y, face up) ================= -->
+    <body name="patient" pos="0 0 0">
+      <geom name="p_torso" type="box" size="0.11 0.14 0.045" pos="0.46 0.10 0.44" material="skin_mat" contype="1" conaffinity="1"/>
+      <geom name="chest_drape" type="box" size="0.10 0.12 0.004" pos="0.46 0.10 0.487" material="drape_mat" contype="1" conaffinity="1"/>
+      <geom name="p_neck" type="capsule" fromto="0.46 -0.03 0.46 0.46 -0.13 0.46" size="0.035" material="skin_mat"/>
+      <geom name="p_head" type="ellipsoid" size="0.075 0.095 0.075" pos="0.46 -0.35 0.47" material="skin_mat" contype="1" conaffinity="1"/>
+      <geom name="p_mouth" type="box" size="0.022 0.012 0.008" pos="0.46 -0.285 0.525" material="steel_dark"/>
+      <site name="surgical_site" pos="0.46 -0.285 0.535" size="0.012" rgba="0.9 0.2 0.2 0.9"/>
+      <site name="landmark_C" pos="0.46 -0.23 0.50" size="0.01" rgba="1 1 0 0.9"/>
+      <site name="landmark_E" pos="0.46 -0.35 0.55" size="0.01" rgba="0 1 1 0.9"/>
+    </body>
+
+    <!-- ================= Surgeon (operator zone, -y) ================= -->
+    <body name="surgeon" pos="0.46 0 0">
+      <geom name="s_forearm" type="capsule" fromto="0 -0.70 0.66 0 -0.34 0.55" size="0.028" material="skin_mat"/>
+      <geom name="s_hand" type="box" size="0.03 0.04 0.018" pos="0 -0.29 0.54" material="glove_mat"/>
+      <site name="surgeon_hand" pos="0 -0.21 0.53" size="0.02" rgba="0.9 0.5 0.2 0.7"/>
+    </body>
+
+    <!-- ================= Zones (benchmark predicates) ================= -->
+    <body name="V_zone" pos="0.46 -0.04 0.54"><site name="V_zone" type="box" size="0.10 0.18 0.055" material="V_mat"/></body>
+    <body name="nofly_zone" pos="0.46 -0.37 0.58"><site name="nofly_zone" type="box" size="0.10 0.11 0.09" material="nofly_mat"/></body>
+
+    <!-- ================= Staging cradle S (2-slot) ================= -->
+    <body name="stage" pos="0.33 0.20 0.41">
+      <geom name="stage_base" type="box" size="0.05 0.075 0.006" pos="0 0 0.006" material="stage_mat" contype="1" conaffinity="1"/>
+      <site name="stage_next" type="cylinder" size="0.028 0.001" pos="0 0.038 0.014" rgba="0.2 0.8 0.3 0.5"/>
+      <site name="stage_used" type="cylinder" size="0.028 0.001" pos="0 -0.038 0.014" rgba="0.8 0.5 0.2 0.5"/>
+    </body>
+
+    <!-- ================= Instrument tray (static zone, +y) ================= -->
+    <body name="tray" pos="0.47 0.44 0.40">
+      <geom name="tray_base" type="box" size="0.18 0.10 0.006" pos="0 0 0.006" material="tray_mat" contype="1" conaffinity="1" friction="1 0.005 0.0001"/>
+      <geom name="tray_rim_a" type="box" size="0.18 0.008 0.014" pos="0  0.092 0.014" material="tray_mat" contype="1" conaffinity="1"/>
+      <geom name="tray_rim_b" type="box" size="0.18 0.008 0.014" pos="0 -0.092 0.014" material="tray_mat" contype="1" conaffinity="1"/>
+      <geom name="tray_rim_c" type="box" size="0.008 0.10 0.014" pos="0.172 0 0.014" material="tray_mat" contype="1" conaffinity="1"/>
+      <geom name="tray_rim_d" type="box" size="0.008 0.10 0.014" pos="-0.172 0 0.014" material="tray_mat" contype="1" conaffinity="1"/>
+    </body>
+
+    <!-- ====== Instruments (freejoint) with R/O/W grasp-region sites (§20-3) ====== -->
+    <!-- MIRROR (G2) -->
+    <body name="mirror" pos="0.39 0.44 0.420">
+      <freejoint/>
+      <geom name="mirror_handle" type="capsule" fromto="-0.075 0 0 0.045 0 0" size="0.005" material="steel" mass="0.018" friction="1 0.01 0.001" contype="1" conaffinity="1"/>
+      <geom name="mirror_head" type="cylinder" fromto="0.045 0 0 0.058 0 0" size="0.012" material="mirror_mat" mass="0.006" contype="1" conaffinity="1"/>
+      <site name="mirror_R" pos="-0.055 0 0.008" size="0.006" material="R_mat" group="3"/>
+      <site name="mirror_O" pos="-0.005 0 0.008" size="0.006" material="O_mat" group="3"/>
+      <site name="mirror_W" pos="0.052 0 0.008" size="0.006" material="W_mat" group="3"/>
+    </body>
+    <!-- FORCEPS (G3): R = HINGE (handle grip closes beak) -->
+    <body name="forceps" pos="0.45 0.44 0.420">
+      <freejoint/>
+      <geom name="forceps_handle" type="capsule" fromto="-0.070 0 0 0.005 0 0" size="0.006" material="steel" mass="0.045" friction="1 0.01 0.001" contype="1" conaffinity="1"/>
+      <geom name="forceps_hinge" type="cylinder" fromto="0.005 0 -0.006 0.005 0 0.006" size="0.008" material="steel_dark" mass="0.006" contype="1" conaffinity="1"/>
+      <geom name="forceps_beak1" type="capsule" fromto="0.005 0.004 0 0.050 0.012 0" size="0.003" material="steel" mass="0.006" contype="1" conaffinity="1"/>
+      <geom name="forceps_beak2" type="capsule" fromto="0.005 -0.004 0 0.050 -0.012 0" size="0.003" material="steel" mass="0.006" contype="1" conaffinity="1"/>
+      <site name="forceps_R" pos="0.005 0 0.010" size="0.006" material="R_mat" group="3"/>
+      <site name="forceps_O" pos="-0.045 0 0.008" size="0.006" material="O_mat" group="3"/>
+      <site name="forceps_W" pos="0.045 0 0.006" size="0.006" material="W_mat" group="3"/>
+    </body>
+    <!-- ELEVATOR (G1 double-ended): R = non-active handle 1/3 -->
+    <body name="elevator" pos="0.53 0.44 0.420">
+      <freejoint/>
+      <geom name="elev_handle" type="cylinder" fromto="-0.055 0 0 0.020 0 0" size="0.009" material="handle_blue" mass="0.045" friction="1 0.01 0.001" contype="1" conaffinity="1"/>
+      <geom name="elev_shank" type="capsule" fromto="0.020 0 0 0.060 0 0.004" size="0.004" material="steel" mass="0.012" contype="1" conaffinity="1"/>
+      <geom name="elev_tip" type="box" size="0.010 0.006 0.002" pos="0.066 0 0.006" material="steel_dark" mass="0.004" contype="1" conaffinity="1"/>
+      <site name="elev_R" pos="-0.045 0 0.011" size="0.006" material="R_mat" group="3"/>
+      <site name="elev_O" pos="0.000 0 0.011" size="0.006" material="O_mat" group="3"/>
+      <site name="elev_W" pos="0.064 0 0.010" size="0.006" material="W_mat" group="3"/>
+    </body>
+    <!-- SYRINGE (G6): R = barrel center, W = needle (sharps) -->
+    <body name="syringe" pos="0.56 0.44 0.422">
+      <freejoint/>
+      <geom name="syr_barrel" type="cylinder" fromto="-0.045 0 0 0.030 0 0" size="0.008" material="glass_mat" mass="0.020" friction="1 0.01 0.001" contype="1" conaffinity="1"/>
+      <geom name="syr_ring" type="cylinder" fromto="-0.065 0 0 -0.045 0 0" size="0.005" material="steel" mass="0.006" contype="1" conaffinity="1"/>
+      <geom name="syr_needle" type="capsule" fromto="0.030 0 0 0.075 0 0" size="0.0012" material="steel_dark" mass="0.002" contype="1" conaffinity="1"/>
+      <site name="syr_R" pos="-0.008 0 0.010" size="0.006" material="R_mat" group="3"/>
+      <site name="syr_O" pos="-0.055 0 0.010" size="0.006" material="O_mat" group="3"/>
+      <site name="syr_W" pos="0.055 0 0" size="0.006" material="W_mat" group="3"/>
+    </body>
+
+  </worldbody>
+  <keyframe>
+    <!-- Auto-generated by tools/build_scene.py.
+         Row order after arms: mirror forceps elevator syringe. -->
+    <key name="home"
+      qpos="
+      0.000000 0.000000 0.000000 1.570796 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 1.570796 0.000000 0.000000 0.000000 0.000000 0.000000
+      0.37778 0.39262 0.42346 -0.96981 0.08080 -0.01484 0.22960
+      0.45207 0.45146 0.42297 0.89258 -0.44647 -0.01038 -0.06212
+      0.53303 0.43071 0.42077 0.89185 -0.43863 0.04786 -0.09955
+      0.52516 0.45575 0.41952 0.59921 -0.77513 0.15925 -0.12152"
+      ctrl="
+      0.000000 0.000000 0.000000 1.570796 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 1.570796 0.000000 0.000000 0.000000 0.000000"/>
+  </keyframe>
+</mujoco>

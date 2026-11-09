@@ -24,6 +24,8 @@ teleop/
 └── tools/                          Blender 에셋 생성 스크립트
 
 bin/                                단축 명령어
+
+or_v1/                              OR v1.0 씬 + 무선 VR (아래 참고)
 ```
 
 ## 준비물
@@ -70,6 +72,24 @@ Quest 용 Unity 앱을 직접 만들어 아래 JSON 을 UDP :5006 으로 보내�
  "vl": true, "vr": true}
 ```
 좌표는 Unity 왼손 좌표계(미터)입니다.
+
+## OR v1.0 씬 + 무선 VR (`or_v1/`)
+
+`sim/` 의 v3 씬 다음 단계 작업입니다. 원래 `~/dental-vla` 에 있던 것을 그대로 옮겼습니다.
+
+- 씬: `or_v1/third_party/openarm_mujoco/v1/dental_or/dental_or_scene_v1.0.xml`
+  (Blender 수술실 → MuJoCo, 검은 OpenArm v1, 기구 22종 트레이). 이전 v2 씬은 `.../v2/dental/dental_scene.xml`
+- Blender 원본: `or_v1/scenes/dental_or_v1.blend`
+- 무선 VR (Quest 브라우저 → CloudXR/IsaacTeleop → 브리지 → dora → MuJoCo): `or_v1/tools/or_v1/start_vr.sh`
+- 브리지 `or_v1/src/dental_vla/isaacteleop_bridge.py`: 캘리브레이션, ㄴ자 홈 자세 매핑, 그리퍼 속도 제한
+- 설치 `or_v1/tools/or_v1/install_teleop.sh`, 문서 `or_v1/docs/HANDOFF_OR_V1_VR.md` (오류·해결 §5)
+- IsaacTeleop 파이썬 경로가 다르면 `CXR_PY=/path/to/python3` 로 지정 (기본 `~/vr_teleop/cloudxr_service_venv/bin/python3`)
+- `or_v1/README.md` 의 `~/dental-vla` 는 이 저장소의 `or_v1/` 로 바꿔 읽으면 됩니다
+
+```bash
+cd or_v1 && uv sync            # 또는 tools/or_v1/install_teleop.sh (uv run 은 dora 노드를 지우므로 쓰지 말 것)
+python -m mujoco.viewer --mjcf third_party/openarm_mujoco/v1/dental_or/dental_or_scene_v1.0.xml
+```
 
 ## 구조
 
